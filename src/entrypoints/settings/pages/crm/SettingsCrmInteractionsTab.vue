@@ -32,6 +32,12 @@ const tabs = computed(() => [
       </v-btn>
     </v-btn-toggle>
 
-    <v-card width="100%" height="300"></v-card>
+    <v-card width="100%" height="300">
+      <v-card-text>
+        <v-switch
+          label="Autosave to CRM on connection request captured"
+        />
+      </v-card-text>
+    </v-card>
   </div>
 </template>
