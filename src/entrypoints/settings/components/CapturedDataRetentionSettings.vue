@@ -4,7 +4,7 @@ import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 
 const { capturedEntitiesTTL } = useDataStore();
-const selectedTTL = ref(30);
+const selectedTTL = ref(90);
 
 watch(() => capturedEntitiesTTL.value, (value) => {
   selectedTTL.value = value;

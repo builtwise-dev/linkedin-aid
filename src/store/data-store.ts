@@ -34,7 +34,7 @@ const personasStorage = ref<PersonasStorage>({ general: [], byCompany: {} });
 const leadTitles = ref<Record<string, string>>({});
 const copyLeadSettings = ref<CopyLeadSettings | null>(null);
 const bulkCopyLeadSettings = ref<LocalData['bulkCopyLeadSettings'] | null>(null);
-const capturedEntitiesTTL = ref<number>(30);
+const capturedEntitiesTTL = ref<number>(90);
 const theme = ref<LocalData['theme']>('system');
 const isLoaded = ref(false);
 
@@ -125,7 +125,7 @@ browser.storage.onChanged.addListener((changes, areaName) => {
     }
     if (changes.capturedEntitiesTTL) {
       const { newValue } = changes.capturedEntitiesTTL as CustomStorageChange<LocalData['capturedEntitiesTTL']>;
-      capturedEntitiesTTL.value = newValue || 30;
+      capturedEntitiesTTL.value = newValue ?? 90;
     }
     if (changes.theme) {
       const { newValue } = changes.theme as CustomStorageChange<LocalData['theme']>;
