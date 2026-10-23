@@ -6,21 +6,12 @@ import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 
 const { user, logout } = useAuth();
-const { capturedEntitiesTTL, theme } = useDataStore();
-const localTTL = ref(30);
+const { theme } = useDataStore();
 const localTheme = ref<'light' | 'dark' | 'system'>('system');
-
-watch(() => capturedEntitiesTTL.value, (val) => {
-  localTTL.value = val;
-}, { immediate: true });
 
 watch(() => theme.value, (val) => {
   localTheme.value = val;
 }, { immediate: true });
-
-watch(localTTL, async (newValue) => {
-  await storageService.setLocal({ capturedEntitiesTTL: newValue });
-});
 
 watch(localTheme, async (newValue) => {
   await storageService.setLocal({ theme: newValue });
@@ -30,15 +21,6 @@ const themeOptions = [
   { label: 'Light', value: 'light', icon: 'mdi-white-balance-sunny' },
   { label: 'Dark', value: 'dark', icon: 'mdi-moon-waning-crescent' },
   { label: 'System', value: 'system', icon: 'mdi-monitor' },
-];
-
-const ttlOptions = [
-  { label: '7 days', value: 7 },
-  { label: '30 days', value: 30 },
-  { label: '90 days', value: 90 },
-  { label: '180 days', value: 180 },
-  { label: '1 year', value: 365 },
-  { label: 'Never', value: -1 },
 ];
 
 const resetSettings = async () => {
@@ -115,30 +97,6 @@ const resetSettings = async () => {
             {{ option.label }}
           </v-btn>
         </v-btn-toggle>
-      </v-card-text>
-    </v-card>
-
-    <v-card title="Data Retention" class="mb-4">
-      <v-card-text>
-        <div class="text-body-2 text-medium-emphasis mb-4">
-          Choose how long to keep captured leads, companies, and sessions before they are automatically deleted.
-        </div>
-        <v-radio-group v-model="localTTL" hide-details>
-          <v-row no-gutters>
-            <v-col
-              v-for="option in ttlOptions"
-              :key="option.value"
-              cols="6"
-            >
-              <v-radio
-                :value="option.value"
-                :label="option.label"
-                color="#0073b1"
-                density="comfortable"
-              />
-            </v-col>
-          </v-row>
-        </v-radio-group>
       </v-card-text>
     </v-card>
 

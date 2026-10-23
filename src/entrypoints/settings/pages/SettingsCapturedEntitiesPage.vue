@@ -7,6 +7,7 @@ import CompanyPreview from '@/components/companies/CompanyPreview.vue';
 import SearchSessionPreview from '@/components/search-sessions/SearchSessionPreview.vue';
 import EntityDetailModal from '@/components/settings/dialogs/EntityDetailModal.vue';
 import LeadPositionRelationModal from '@/components/settings/dialogs/LeadPositionRelationModal.vue';
+import CapturedDataRetentionSettings from '@/entrypoints/settings/components/CapturedDataRetentionSettings.vue';
 import { matchesLead, matchesCompany, matchesSession } from '@/helpers/entity-search-helper';
 import { getSalesNavigatorCompanyUrl, getSalesNavigatorLeadUrl } from '@/helpers/url-helpers';
 import type { Lead } from '@/types/lead/lead';
@@ -259,6 +260,8 @@ function getCompanyUrl(company: Company) {
 
 <template>
   <div>
+    <CapturedDataRetentionSettings />
+
     <v-btn-toggle
       v-model="activeTab"
       mandatory
