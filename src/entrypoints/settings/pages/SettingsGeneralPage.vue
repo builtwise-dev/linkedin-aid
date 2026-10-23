@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { browser } from 'wxt/browser';
+import { useAuth } from '@/composables/useAuth';
 import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 
+const { user, logout } = useAuth();
 const { capturedEntitiesTTL, theme } = useDataStore();
 const localTTL = ref(30);
 const localTheme = ref<'light' | 'dark' | 'system'>('system');
@@ -51,7 +53,33 @@ const resetSettings = async () => {
   <div>
     <v-card title="Profile" class="mb-4">
       <v-card-text>
-        <div class="placeholder-content">
+        <template v-if="user">
+          <div class="d-flex align-center justify-space-between flex-wrap ga-4">
+            <div class="d-flex align-center ga-3">
+              <v-avatar size="44" color="#0073b1">
+                <v-img v-if="user.photoURL" :src="user.photoURL" :alt="user.displayName || 'User'" />
+                <v-icon v-else icon="mdi-account" color="white" size="28" />
+              </v-avatar>
+              <div>
+                <div class="text-subtitle-1 font-weight-medium">
+                  {{ user.displayName || 'Authorized User' }}
+                </div>
+                <div class="text-body-2 text-medium-emphasis">
+                  {{ user.email }}
+                </div>
+              </div>
+            </div>
+            <v-btn
+              variant="outlined"
+              color="error"
+              prepend-icon="mdi-logout"
+              @click="logout"
+            >
+              Sign Out
+            </v-btn>
+          </div>
+        </template>
+        <div v-else class="placeholder-content">
           Profile settings will be available here soon.
         </div>
       </v-card-text>
