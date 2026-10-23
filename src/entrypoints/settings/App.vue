@@ -4,7 +4,7 @@ import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 import SettingsView from '@/entrypoints/settings/views/SettingsView.vue';
 import SignInView from '@/entrypoints/settings/views/SignInView.vue';
-import SettingsAppBar from '@/entrypoints/settings/components/SettingsAppBar.vue';
+import SettingsAppBar from '@/components/settings/SettingsAppBar.vue';
 
 const { user, loading: loadingAuth } = useAuth();
 

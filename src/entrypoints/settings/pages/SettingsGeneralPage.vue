@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { browser } from 'wxt/browser';
 import { useAuth } from '@/composables/useAuth';
-import DeleteAccountDialog from '@/entrypoints/settings/components/DeleteAccountDialog.vue';
+import DeleteAccountDialog from '@/components/settings/dialogs/DeleteAccountDialog.vue';
 
 const { user } = useAuth();
 
