@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser';
 import {
   GoogleAuthProvider,
+  deleteUser,
   signInWithCredential,
   signOut as firebaseSignOut,
   onAuthStateChanged,
@@ -59,6 +60,18 @@ export function useAuth() {
     await firebaseSignOut(auth);
   };
 
+  const deleteAccount = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error('No signed-in account is available to delete.');
+
+    await deleteUser(currentUser);
+    recentEmail.value = null;
+    await Promise.allSettled([
+      browser.storage.local.remove(RECENT_EMAIL_KEY),
+      browser.identity.clearAllCachedAuthTokens(),
+    ]);
+  };
+
   return {
     user: readonly(user),
     loading: readonly(loading),
@@ -66,5 +79,6 @@ export function useAuth() {
     signInWithGoogle,
     signInWithAnotherAccount,
     logout,
+    deleteAccount,
   };
 }
