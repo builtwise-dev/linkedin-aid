@@ -38,7 +38,7 @@ const handleDelete = async () => {
 </script>
 
 <template>
-  <v-dialog v-model="isOpen" max-width="480" persistent>
+  <v-dialog v-model="isOpen" max-width="480">
     <template #activator="{ props }">
       <slot name="activator" :props="props" />
     </template>
