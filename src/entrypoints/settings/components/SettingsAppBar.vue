@@ -1,7 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useAuth } from '@/composables/useAuth';
+import { useDataStore } from '@/store/data-store';
+import { storageService } from '@/services/storage-service';
 
 const { user, logout } = useAuth();
+const { theme } = useDataStore();
+const selectedTheme = computed({
+  get: () => theme.value,
+  set: (value: 'light' | 'dark' | 'system') => storageService.setLocal({ theme: value }),
+});
+
+const themeOptions = [
+  { label: 'Light', value: 'light', icon: 'mdi-white-balance-sunny' },
+  { label: 'Dark', value: 'dark', icon: 'mdi-moon-waning-crescent' },
+  { label: 'System', value: 'system', icon: 'mdi-monitor' },
+];
 </script>
 
 <template>
@@ -15,7 +29,7 @@ const { user, logout } = useAuth();
 
     <v-spacer />
 
-    <v-menu v-if="user">
+    <v-menu v-if="user" :close-on-content-click="false">
       <template #activator="{ props }">
         <v-btn
           v-bind="props"
@@ -36,9 +50,36 @@ const { user, logout } = useAuth();
         </v-btn>
       </template>
 
-      <v-list density="compact">
-        <v-list-subheader>Profile</v-list-subheader>
-        <v-list-item base-color="error" prepend-icon="mdi-logout" title="Sign out" @click="logout" />
+      <v-list>
+        <v-list-subheader>Theme</v-list-subheader>
+        <v-btn-toggle
+          v-model="selectedTheme"
+          mandatory
+          divided
+          color="#0073b1"
+          variant="outlined"
+          class="d-flex px-2 pb-2"
+          aria-label="Choose theme"
+        >
+          <v-btn
+            v-for="option in themeOptions"
+            :key="option.value"
+            :value="option.value"
+            :title="option.label"
+            :aria-label="option.label"
+            size="small"
+            class="flex-grow-1"
+          >
+            <v-icon>{{ option.icon }}</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+        <v-divider class="my-2" />
+        <v-list-item
+          base-color="error"
+          prepend-icon="mdi-logout"
+          title="Sign out"
+          @click="logout"
+        />
       </v-list>
     </v-menu>
   </v-app-bar>

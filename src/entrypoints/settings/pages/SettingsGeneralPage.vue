@@ -1,28 +1,9 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
 import { browser } from 'wxt/browser';
 import { useAuth } from '@/composables/useAuth';
-import { useDataStore } from '@/store/data-store';
-import { storageService } from '@/services/storage-service';
 import DeleteAccountDialog from '@/entrypoints/settings/components/DeleteAccountDialog.vue';
 
 const { user } = useAuth();
-const { theme } = useDataStore();
-const localTheme = ref<'light' | 'dark' | 'system'>('system');
-
-watch(() => theme.value, (val) => {
-  localTheme.value = val;
-}, { immediate: true });
-
-watch(localTheme, async (newValue) => {
-  await storageService.setLocal({ theme: newValue });
-});
-
-const themeOptions = [
-  { label: 'Light', value: 'light', icon: 'mdi-white-balance-sunny' },
-  { label: 'Dark', value: 'dark', icon: 'mdi-moon-waning-crescent' },
-  { label: 'System', value: 'system', icon: 'mdi-monitor' },
-];
 
 const resetSettings = async () => {
   if (confirm('Are you sure you want to reset all settings?')) {
@@ -72,31 +53,6 @@ const resetSettings = async () => {
         <div class="placeholder-content">
           Subscription management will be available here soon.
         </div>
-      </v-card-text>
-    </v-card>
-
-    <v-card title="Appearance" class="mb-4">
-      <v-card-text>
-        <div class="text-body-2 text-medium-emphasis mb-4">
-          Choose your preferred theme for the extension.
-        </div>
-        <v-btn-toggle
-          v-model="localTheme"
-          mandatory
-          color="#0073b1"
-          variant="outlined"
-          class="w-100"
-        >
-          <v-btn
-            v-for="option in themeOptions"
-            :key="option.value"
-            :value="option.value"
-            class="flex-grow-1"
-          >
-            <v-icon start>{{ option.icon }}</v-icon>
-            {{ option.label }}
-          </v-btn>
-        </v-btn-toggle>
       </v-card-text>
     </v-card>
 
