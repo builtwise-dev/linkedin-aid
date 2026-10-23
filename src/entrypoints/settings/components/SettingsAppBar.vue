@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth';
-import DeleteAccountDialog from '@/entrypoints/settings/components/DeleteAccountDialog.vue';
 
 const { user, logout } = useAuth();
 </script>
@@ -22,19 +21,6 @@ const { user, logout } = useAuth();
       <span class="text-body-2 font-weight-medium mr-2">
         {{ user.displayName || user.email }}
       </span>
-      <DeleteAccountDialog>
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            variant="text"
-            color="error"
-            size="small"
-            title="Delete account"
-          >
-            Delete account
-          </v-btn>
-        </template>
-      </DeleteAccountDialog>
       <v-btn
         variant="text"
         color="error"
