@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, type FirebaseOptions } from 'firebase/app';
+import { initializeAuth, indexedDBLocalPersistence } from 'firebase/auth/web-extension';
 
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.WXT_FIREBASE_API_KEY,
   authDomain: import.meta.env.WXT_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.WXT_FIREBASE_PROJECT_ID,
@@ -10,4 +10,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: indexedDBLocalPersistence,
+});
