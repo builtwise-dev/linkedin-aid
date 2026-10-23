@@ -5,7 +5,7 @@ import DeleteAccountDialog from '@/entrypoints/settings/components/DeleteAccount
 
 const { user } = useAuth();
 
-const resetSettings = async () => {
+const resetLocalSettings = async () => {
   if (confirm('Are you sure you want to reset all settings?')) {
     await browser.storage.local.remove(['copyLeadSettings', 'bulkCopyLeadSettings', 'capturedEntitiesTTL', 'theme']);
     alert('Settings reset.');
@@ -60,9 +60,9 @@ const resetSettings = async () => {
       <v-card-text>
         <v-btn
           color="error"
-          @click="resetSettings"
+          @click="resetLocalSettings"
         >
-          Reset All Settings
+          Reset All Local Preferences
         </v-btn>
       </v-card-text>
     </v-card>
