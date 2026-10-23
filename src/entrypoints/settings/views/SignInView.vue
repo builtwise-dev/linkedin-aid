@@ -2,16 +2,19 @@
 import { ref } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 
-const { signInWithGoogle } = useAuth();
-const isSigningIn = ref(false);
+const { signInWithGoogle, signInWithAnotherAccount, recentEmail } = useAuth();
+const isSigningIn = ref<'recent' | 'another' | null>(null);
 const errorMessage = ref<string | null>(null);
 
-const handleSignIn = async () => {
-  isSigningIn.value = true;
+const runSignIn = async (
+  account: 'recent' | 'another',
+  signIn: () => Promise<unknown>,
+) => {
+  isSigningIn.value = account;
   errorMessage.value = null;
 
   try {
-    await signInWithGoogle();
+    await signIn();
   } catch (err: unknown) {
     const error = err as { code?: string; message?: string };
     console.error(err);
@@ -20,9 +23,12 @@ const handleSignIn = async () => {
     }
     errorMessage.value = error.message || 'Failed to sign in with Google. Please try again.';
   } finally {
-    isSigningIn.value = false;
+    isSigningIn.value = null;
   }
 };
+
+const handleContinueAsRecent = () => runSignIn('recent', signInWithGoogle);
+const handleSignInWithAnotherAccount = () => runSignIn('another', signInWithAnotherAccount);
 </script>
 
 <template>
@@ -40,14 +46,41 @@ const handleSignIn = async () => {
         Authorization is required to access Settings and manage your preferences and captured data.
       </v-card-text>
 
+      <template v-if="recentEmail">
+        <v-btn
+          color="#0073b1"
+          size="large"
+          block
+          prepend-icon="mdi-google"
+          :loading="isSigningIn === 'recent'"
+          :disabled="isSigningIn !== null"
+          @click="handleContinueAsRecent"
+        >
+          Continue as {{ recentEmail }}
+        </v-btn>
+
+        <v-btn
+          class="mt-3"
+          variant="outlined"
+          size="large"
+          block
+          :loading="isSigningIn === 'another'"
+          :disabled="isSigningIn !== null"
+          @click="handleSignInWithAnotherAccount"
+        >
+          Sign in with another account
+        </v-btn>
+      </template>
+
       <v-btn
+        v-else
         color="#0073b1"
         size="large"
         block
         prepend-icon="mdi-google"
-        :loading="isSigningIn"
-        :disabled="isSigningIn"
-        @click="handleSignIn"
+        :loading="isSigningIn !== null"
+        :disabled="isSigningIn !== null"
+        @click="handleContinueAsRecent"
       >
         Sign in with Google
       </v-btn>
@@ -62,10 +95,6 @@ const handleSignIn = async () => {
       >
         {{ errorMessage }}
       </v-alert>
-
-      <div class="text-caption text-medium-emphasis mt-6">
-        Only Google account authorization is currently supported.
-      </div>
     </v-card>
   </v-container>
 </template>
