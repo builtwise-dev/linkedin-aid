@@ -6,7 +6,7 @@ import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 import DeleteAccountDialog from '@/entrypoints/settings/components/DeleteAccountDialog.vue';
 
-const { user, logout } = useAuth();
+const { user } = useAuth();
 const { theme } = useDataStore();
 const localTheme = ref<'light' | 'dark' | 'system'>('system');
 
@@ -52,23 +52,13 @@ const resetSettings = async () => {
                 </div>
               </div>
             </div>
-            <div class="d-flex align-center flex-wrap ga-2">
-              <DeleteAccountDialog>
-                <template #activator="{ props }">
-                  <v-btn v-bind="props" variant="outlined" color="error" prepend-icon="mdi-account-remove">
-                    Delete account
-                  </v-btn>
-                </template>
-              </DeleteAccountDialog>
-              <v-btn
-                variant="outlined"
-                color="error"
-                prepend-icon="mdi-logout"
-                @click="logout"
-              >
-                Sign Out
-              </v-btn>
-            </div>
+            <DeleteAccountDialog>
+              <template #activator="{ props }">
+                <v-btn v-bind="props" variant="outlined" color="error" prepend-icon="mdi-account-remove">
+                  Delete account
+                </v-btn>
+              </template>
+            </DeleteAccountDialog>
           </div>
         </template>
         <div v-else class="placeholder-content">
