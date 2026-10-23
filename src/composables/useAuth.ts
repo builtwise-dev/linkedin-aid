@@ -1,4 +1,11 @@
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { browser } from 'wxt/browser';
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  type User,
+} from 'firebase/auth/web-extension';
 import { ref, readonly } from 'vue';
 import { auth } from '@/utils/firebase';
 
@@ -11,8 +18,28 @@ onAuthStateChanged(auth, (currentUser) => {
 });
 
 export function useAuth() {
+  const signInWithGoogle = async () => {
+    const { token } = await browser.identity.getAuthToken({
+      interactive: true,
+    });
+
+    if (!token) {
+      throw new Error('Google did not return an access token.');
+    }
+
+    const credential = GoogleAuthProvider.credential(null, token);
+
+    return signInWithCredential(auth, credential);
+  };
+
+  const logout = async () => {
+    await firebaseSignOut(auth);
+  };
+
   return {
     user: readonly(user),
     loading: readonly(loading),
+    signInWithGoogle,
+    logout,
   };
 }
