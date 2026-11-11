@@ -13,7 +13,10 @@ export default defineConfig({
       name: 'LinkedIn AID' + (isDev ? ' (dev)' : ''),
       description: 'LinkedIn SN data interceptor & assistant',
       permissions: ['scripting', 'storage', 'tabs', 'identity'],
-      host_permissions: ['*://*.linkedin.com/*'],
+      host_permissions: [
+        '*://*.linkedin.com/*',
+        'https://*.builtwise.dev/*',
+      ],
       options_ui: {
         page: 'settings.html',
         open_in_tab: true,
