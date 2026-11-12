@@ -16,6 +16,7 @@ export default defineConfig({
       host_permissions: [
         '*://*.linkedin.com/*',
         'https://*.builtwise.dev/*',
+        ...(env.WXT_API_URL ? [`${new URL(env.WXT_API_URL).origin}/*`] : []),
       ],
       options_ui: {
         page: 'settings.html',
