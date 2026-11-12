@@ -15,15 +15,18 @@ const props = defineProps<Props>();
 
 const { currentUrlLead } = useLeads(props.tabUrl);
 const { user, loading: authLoading } = useAuth();
-const { saveLead, savingLead } = useCrmSave();
+const { saveLead, unsaveLead, savingLead, removingLead } = useCrmSave();
 const saveMessage = ref('');
 const saveError = ref(false);
 const savedByMutationUrn = ref<string | null>(null);
-const { isSaved: apiIsSaved, loading: statusLoading, error: statusError } = useCrmLeadSavedStatus(
+const savedByMutationId = ref<string | null>(null);
+const { isSaved: apiIsSaved, recordId: savedLeadId, loading: statusLoading, error: statusError } = useCrmLeadSavedStatus(
   computed(() => currentUrlLead.value?.entityUrn),
   computed(() => !!user.value && !!currentUrlLead.value?.entityUrn),
 );
 const isSaved = computed(() => savedByMutationUrn.value === currentUrlLead.value?.entityUrn || apiIsSaved.value);
+const locallyRemovedUrn = ref<string | null>(null);
+const crmSaved = computed(() => isSaved.value && locallyRemovedUrn.value !== currentUrlLead.value?.entityUrn);
 
 const validWebUrl = (value?: string | null) => value && /^https?:\/\//i.test(value) ? value : undefined;
 
@@ -39,7 +42,7 @@ const saveCurrentLead = async () => {
   saveMessage.value = '';
   saveError.value = false;
   try {
-    await saveLead({
+    const result = await saveLead({
       variables: {
         input: {
           linkedinUrn: lead.entityUrn,
@@ -56,10 +59,28 @@ const saveCurrentLead = async () => {
       },
     });
     savedByMutationUrn.value = lead.entityUrn;
+    savedByMutationId.value = result?.data?.saveLead.id || null;
+    locallyRemovedUrn.value = null;
     saveMessage.value = '';
   } catch (error) {
     saveError.value = true;
     saveMessage.value = error instanceof Error ? error.message : 'Could not save this lead to CRM.';
+  }
+};
+
+const removeCurrentLead = async () => {
+  const leadId = savedLeadId.value || savedByMutationId.value;
+  if (!leadId || !confirm('Remove this lead from your CRM?')) return;
+  saveMessage.value = '';
+  saveError.value = false;
+  try {
+    await unsaveLead({ variables: { leadId } });
+    locallyRemovedUrn.value = currentUrlLead.value?.entityUrn || null;
+    savedByMutationUrn.value = null;
+    savedByMutationId.value = null;
+  } catch (error) {
+    saveError.value = true;
+    saveMessage.value = error instanceof Error ? error.message : 'Could not remove this lead from CRM.';
   }
 };
 </script>
@@ -72,12 +93,14 @@ const saveCurrentLead = async () => {
       :auth-loading="authLoading"
       :checking="statusLoading"
       :saving="savingLead"
-      :saved="isSaved"
+      :saved="crmSaved"
+      :removing="removingLead"
       :status-error="statusError?.message || ''"
       :message="saveMessage"
       :message-error="saveError"
       class="mb-2"
       @save="saveCurrentLead"
+      @unsave="removeCurrentLead"
     />
 
     <LeadPreview

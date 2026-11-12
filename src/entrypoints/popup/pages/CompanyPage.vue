@@ -24,10 +24,11 @@ const props = defineProps<Props>();
 
 const { currentUrlCompany } = useCompanies(props.tabUrl);
 const { user, loading: authLoading } = useAuth();
-const { saveCompany, savingCompany } = useCrmSave();
+const { saveCompany, deleteCompany, savingCompany, removingCompany } = useCrmSave();
 const saveMessage = ref('');
 const saveError = ref(false);
 const savedByMutationUrn = ref<string | null>(null);
+const savedByMutationId = ref<string | null>(null);
 const { getLeadsByCompany, getLeadsByPersona, getSavedLeadsByCompany } = useLeads(props.tabUrl);
 const { getPersonasByCompany } = usePersonas();
 const { getSessionsByCompany } = useSearchSessions();
@@ -40,11 +41,13 @@ const tabs = [
 ];
 
 const selectedPersonaId = ref('');
-const { isSaved: apiCompanyIsSaved, loading: companyStatusLoading, error: companyStatusError } = useCrmCompanySavedStatus(
+const { isSaved: apiCompanyIsSaved, recordId: savedCompanyId, loading: companyStatusLoading, error: companyStatusError } = useCrmCompanySavedStatus(
   computed(() => currentUrlCompany.value?.entityUrn),
   computed(() => !!user.value && !!currentUrlCompany.value?.entityUrn),
 );
 const isCompanySaved = computed(() => savedByMutationUrn.value === currentUrlCompany.value?.entityUrn || apiCompanyIsSaved.value);
+const locallyRemovedCompanyUrn = ref<string | null>(null);
+const crmCompanySaved = computed(() => isCompanySaved.value && locallyRemovedCompanyUrn.value !== currentUrlCompany.value?.entityUrn);
 
 const validWebUrl = (value?: string | null) => value && /^https?:\/\//i.test(value) ? value : undefined;
 
@@ -56,7 +59,7 @@ const saveCurrentCompany = async () => {
   saveMessage.value = '';
   saveError.value = false;
   try {
-    await saveCompany({
+    const result = await saveCompany({
       variables: {
         input: {
           linkedinUrn: company.entityUrn,
@@ -72,10 +75,28 @@ const saveCurrentCompany = async () => {
       },
     });
     savedByMutationUrn.value = company.entityUrn;
+    savedByMutationId.value = result?.data?.saveCompany.id || null;
+    locallyRemovedCompanyUrn.value = null;
     saveMessage.value = '';
   } catch (error) {
     saveError.value = true;
     saveMessage.value = error instanceof Error ? error.message : 'Could not save this company to CRM.';
+  }
+};
+
+const removeCurrentCompany = async () => {
+  const companyId = savedCompanyId.value || savedByMutationId.value;
+  if (!companyId || !confirm('Remove this company from your CRM?')) return;
+  saveMessage.value = '';
+  saveError.value = false;
+  try {
+    await deleteCompany({ variables: { companyId } });
+    locallyRemovedCompanyUrn.value = currentUrlCompany.value?.entityUrn || null;
+    savedByMutationUrn.value = null;
+    savedByMutationId.value = null;
+  } catch (error) {
+    saveError.value = true;
+    saveMessage.value = error instanceof Error ? error.message : 'Could not remove this company from CRM.';
   }
 };
 
@@ -181,12 +202,14 @@ watch([activeTab, selectedPersonaId, () => props.tabUrl], () => {
         :auth-loading="authLoading"
         :checking="companyStatusLoading"
         :saving="savingCompany"
-        :saved="isCompanySaved"
+        :saved="crmCompanySaved"
+        :removing="removingCompany"
         :status-error="companyStatusError?.message || ''"
         :message="saveMessage"
         :message-error="saveError"
         class="mb-2"
         @save="saveCurrentCompany"
+        @unsave="removeCurrentCompany"
       />
 
       <CompanyPreview :company="currentUrlCompany" accordion />

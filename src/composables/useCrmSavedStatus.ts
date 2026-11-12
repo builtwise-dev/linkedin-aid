@@ -28,6 +28,7 @@ export function useCrmLeadSavedStatus(
 
   return {
     isSaved: computed(() => !!query.result.value?.savedLead),
+    recordId: computed(() => query.result.value?.savedLead?.id),
     loading: query.loading,
     error: query.error,
   };
@@ -48,6 +49,7 @@ export function useCrmCompanySavedStatus(
 
   return {
     isSaved: computed(() => !!query.result.value?.company),
+    recordId: computed(() => query.result.value?.company?.id),
     loading: query.loading,
     error: query.error,
   };

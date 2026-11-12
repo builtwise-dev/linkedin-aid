@@ -1,0 +1,3 @@
+mutation DeleteCrmCompany($companyId: String!) {
+  deleteCompany(companyId: $companyId)
+}
