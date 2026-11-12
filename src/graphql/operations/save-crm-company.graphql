@@ -1,0 +1,7 @@
+mutation SaveCrmCompany($input: SaveCompanyInput!) {
+  saveCompany(input: $input) {
+    id
+    linkedinUrn
+    status
+  }
+}

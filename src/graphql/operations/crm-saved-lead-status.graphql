@@ -1,0 +1,6 @@
+query CrmSavedLeadStatus($linkedinUrn: String!) {
+  savedLead(linkedinUrn: $linkedinUrn) {
+    id
+    linkedinUrn
+  }
+}

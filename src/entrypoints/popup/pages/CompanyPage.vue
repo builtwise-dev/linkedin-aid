@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useAuth } from '@/composables/useAuth';
+import { useCrmSave } from '@/composables/useCrmSave';
+import { useCrmCompanySavedStatus } from '@/composables/useCrmSavedStatus';
 import { useCompanies } from '@/composables/useCompanies';
 import { useLeads } from '@/composables/useLeads';
 import { usePersonas } from '@/composables/usePersonas';
 import { useSearchSessions } from '@/composables/useSearchSessions';
 import { getPersonaSearchIdFromUrn } from '@/helpers/urn';
+import { getDisplayImageUrl } from '@/helpers/image-helper';
 import CompanyPreview from '@/components/companies/CompanyPreview.vue';
 import LeadPreviewList from '@/components/leads/LeadPreviewList.vue';
 import AppSegmentedControl from '@/components/ui/AppSegmentedControl.vue';
 import AppCheckbox from '@/components/ui/AppCheckbox.vue';
 import AppCopyButton from '@/components/ui/AppCopyButton.vue';
 import BulkCopyModal from '@/components/modals/BulkCopyModal.vue';
+import CrmSaveControl from '@/components/crm/CrmSaveControl.vue';
 
 interface Props {
   tabUrl: string;
@@ -18,6 +23,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const { currentUrlCompany } = useCompanies(props.tabUrl);
+const { user, loading: authLoading } = useAuth();
+const { saveCompany, savingCompany } = useCrmSave();
+const saveMessage = ref('');
+const saveError = ref(false);
+const savedByMutationUrn = ref<string | null>(null);
 const { getLeadsByCompany, getLeadsByPersona, getSavedLeadsByCompany } = useLeads(props.tabUrl);
 const { getPersonasByCompany } = usePersonas();
 const { getSessionsByCompany } = useSearchSessions();
@@ -30,6 +40,44 @@ const tabs = [
 ];
 
 const selectedPersonaId = ref('');
+const { isSaved: apiCompanyIsSaved, loading: companyStatusLoading, error: companyStatusError } = useCrmCompanySavedStatus(
+  computed(() => currentUrlCompany.value?.entityUrn),
+  computed(() => !!user.value && !!currentUrlCompany.value?.entityUrn),
+);
+const isCompanySaved = computed(() => savedByMutationUrn.value === currentUrlCompany.value?.entityUrn || apiCompanyIsSaved.value);
+
+const validWebUrl = (value?: string | null) => value && /^https?:\/\//i.test(value) ? value : undefined;
+
+const saveCurrentCompany = async () => {
+  const company = currentUrlCompany.value;
+  const name = company?.main?.name;
+  if (!company || !name || !user.value) return;
+
+  saveMessage.value = '';
+  saveError.value = false;
+  try {
+    await saveCompany({
+      variables: {
+        input: {
+          linkedinUrn: company.entityUrn,
+          name,
+          profileUrl: validWebUrl(company.profileUrl || company.main?.flagshipCompanyUrl),
+          industry: company.main?.industry,
+          website: validWebUrl(company.main?.website),
+          description: company.main?.description,
+          location: company.main?.location,
+          employeeCountRange: company.extra?.employeeCountRange,
+          logoUrl: validWebUrl(getDisplayImageUrl(company.main?.companyPictureDisplayImage as any)),
+        },
+      },
+    });
+    savedByMutationUrn.value = company.entityUrn;
+    saveMessage.value = '';
+  } catch (error) {
+    saveError.value = true;
+    saveMessage.value = error instanceof Error ? error.message : 'Could not save this company to CRM.';
+  }
+};
 
 const companyPersonas = computed(() => {
   if (!currentUrlCompany.value) return [];
@@ -128,6 +176,19 @@ watch([activeTab, selectedPersonaId, () => props.tabUrl], () => {
 <template>
   <div class="company-page">
     <div v-if="currentUrlCompany">
+      <CrmSaveControl
+        :authenticated="!!user"
+        :auth-loading="authLoading"
+        :checking="companyStatusLoading"
+        :saving="savingCompany"
+        :saved="isCompanySaved"
+        :status-error="companyStatusError?.message || ''"
+        :message="saveMessage"
+        :message-error="saveError"
+        class="mb-2"
+        @save="saveCurrentCompany"
+      />
+
       <CompanyPreview :company="currentUrlCompany" accordion />
 
       <div class="leads-section">
@@ -194,6 +255,7 @@ watch([activeTab, selectedPersonaId, () => props.tabUrl], () => {
   flex-direction: column;
   gap: 16px;
 }
+
 
 .leads-section {
   margin-top: 8px;

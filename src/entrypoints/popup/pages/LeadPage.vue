@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { useLeads } from '@/composables/useLeads';
+import { useAuth } from '@/composables/useAuth';
+import { useCrmSave } from '@/composables/useCrmSave';
+import { useCrmLeadSavedStatus } from '@/composables/useCrmSavedStatus';
+import { getLeadAvatarUrl } from '@/helpers/lead-helper';
+import CrmSaveControl from '@/components/crm/CrmSaveControl.vue';
 import LeadPreview from '../../../components/leads/LeadPreview.vue';
 
 interface Props {
@@ -8,10 +14,72 @@ interface Props {
 const props = defineProps<Props>();
 
 const { currentUrlLead } = useLeads(props.tabUrl);
+const { user, loading: authLoading } = useAuth();
+const { saveLead, savingLead } = useCrmSave();
+const saveMessage = ref('');
+const saveError = ref(false);
+const savedByMutationUrn = ref<string | null>(null);
+const { isSaved: apiIsSaved, loading: statusLoading, error: statusError } = useCrmLeadSavedStatus(
+  computed(() => currentUrlLead.value?.entityUrn),
+  computed(() => !!user.value && !!currentUrlLead.value?.entityUrn),
+);
+const isSaved = computed(() => savedByMutationUrn.value === currentUrlLead.value?.entityUrn || apiIsSaved.value);
+
+const validWebUrl = (value?: string | null) => value && /^https?:\/\//i.test(value) ? value : undefined;
+
+const saveCurrentLead = async () => {
+  const lead = currentUrlLead.value;
+  if (!lead || !user.value) return;
+
+  const position = lead.main?.positions?.find(item => item.current)
+    || lead.searchResult?.currentPositions?.find(item => item.current)
+    || lead.main?.positions?.[0]
+    || lead.searchResult?.currentPositions?.[0];
+
+  saveMessage.value = '';
+  saveError.value = false;
+  try {
+    await saveLead({
+      variables: {
+        input: {
+          linkedinUrn: lead.entityUrn,
+          profileUrl: validWebUrl(lead.profileUrl),
+          firstName: lead.main?.firstName || lead.searchResult?.firstName,
+          lastName: lead.main?.lastName || lead.searchResult?.lastName,
+          headline: lead.main?.headline,
+          location: lead.main?.location || lead.searchResult?.geoRegion,
+          currentTitle: position?.title,
+          currentCompanyName: position?.companyName,
+          currentCompanyLinkedinUrn: position?.companyUrn,
+          profileImageUrl: validWebUrl(getLeadAvatarUrl(lead)),
+        },
+      },
+    });
+    savedByMutationUrn.value = lead.entityUrn;
+    saveMessage.value = '';
+  } catch (error) {
+    saveError.value = true;
+    saveMessage.value = error instanceof Error ? error.message : 'Could not save this lead to CRM.';
+  }
+};
 </script>
 
 <template>
   <div class="lead-page">
+    <CrmSaveControl
+      v-if="currentUrlLead"
+      :authenticated="!!user"
+      :auth-loading="authLoading"
+      :checking="statusLoading"
+      :saving="savingLead"
+      :saved="isSaved"
+      :status-error="statusError?.message || ''"
+      :message="saveMessage"
+      :message-error="saveError"
+      class="mb-2"
+      @save="saveCurrentLead"
+    />
+
     <LeadPreview
       v-if="currentUrlLead"
       :lead="currentUrlLead"
@@ -26,4 +94,5 @@ const { currentUrlLead } = useLeads(props.tabUrl);
 .lead-page {
   padding: 10px;
 }
+
 </style>

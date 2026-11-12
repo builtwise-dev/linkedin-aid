@@ -1,0 +1,6 @@
+query CrmSavedCompanyStatus($linkedinUrn: String!) {
+  company(linkedinUrn: $linkedinUrn) {
+    id
+    linkedinUrn
+  }
+}
