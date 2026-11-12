@@ -1,0 +1,13 @@
+query CrmSavedLeads {
+  savedLeads {
+    id
+    linkedinUrn
+    firstName
+    lastName
+    headline
+    currentTitle
+    currentCompanyName
+    status
+    updatedAt
+  }
+}

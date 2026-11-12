@@ -1,0 +1,9 @@
+query CrmNotes {
+  crmNotes {
+    id
+    body
+    savedLeadId
+    companyId
+    createdAt
+  }
+}

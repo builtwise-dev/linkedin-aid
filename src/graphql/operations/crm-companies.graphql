@@ -1,0 +1,11 @@
+query CrmCompanies {
+  companies {
+    id
+    linkedinUrn
+    name
+    industry
+    location
+    status
+    updatedAt
+  }
+}

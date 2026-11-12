@@ -1,0 +1,7 @@
+query CrmTags {
+  crmTags {
+    id
+    name
+    createdAt
+  }
+}

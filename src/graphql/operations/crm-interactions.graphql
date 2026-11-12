@@ -1,0 +1,12 @@
+query CrmInteractions {
+  crmInteractions {
+    id
+    kind
+    summary
+    channel
+    outcome
+    occurredAt
+    savedLeadId
+    companyId
+  }
+}

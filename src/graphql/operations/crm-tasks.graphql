@@ -1,0 +1,12 @@
+query CrmTasks {
+  crmTasks {
+    id
+    title
+    description
+    status
+    dueAt
+    savedLeadId
+    companyId
+    updatedAt
+  }
+}
