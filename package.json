@@ -12,13 +12,17 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "vue-tsc --noEmit",
+    "graphql:codegen": "bun --env-file=.env run graphql-codegen --config codegen.ts",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@apollo/client": "^4.3.8",
     "@mdi/font": "^7.4.47",
+    "@vue/apollo-composable": "^5.0.0-beta.1",
     "deepmerge": "^4.3.1",
     "dexie": "^4.4.4",
     "firebase": "^13.1.0",
+    "graphql": "^16.15.0",
     "ms": "^2.1.3",
     "vue": "^3.5.44",
     "vue-json-pretty": "^2.6.0",
@@ -26,6 +30,8 @@
     "vuetify": "^4.1.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^8.0.0",
+    "@graphql-codegen/client-preset": "^7.0.0",
     "@types/ms": "^2.1.0",
     "@wxt-dev/module-vue": "^1.0.3",
     "typescript": "^5.9.3",
