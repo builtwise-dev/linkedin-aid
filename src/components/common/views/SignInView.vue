@@ -43,7 +43,7 @@ const handleSignInWithAnotherAccount = () => runSignIn('another', signInWithAnot
       </v-card-title>
 
       <v-card-text class="text-body-1 text-medium-emphasis mb-6">
-        Authorization is required to access Settings and manage your preferences and captured data.
+        Authorization is required to access your LinkedIn AID workspace and saved data.
       </v-card-text>
 
       <template v-if="recentEmail">

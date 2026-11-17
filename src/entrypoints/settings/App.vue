@@ -3,7 +3,7 @@ import { useAuth } from '@/composables/useAuth';
 import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 import SettingsView from '@/entrypoints/settings/views/SettingsView.vue';
-import SignInView from '@/entrypoints/settings/views/SignInView.vue';
+import SignInView from '@/components/common/views/SignInView.vue';
 import LayoutAppBar from '@/components/common/layout/LayoutAppBar.vue';
 
 const { user, loading: loadingAuth } = useAuth();
