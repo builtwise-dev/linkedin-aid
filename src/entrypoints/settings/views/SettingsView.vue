@@ -24,6 +24,16 @@ const version = browser.runtime.getManifest().version;
 <template>
   <v-container>
     <v-navigation-drawer permanent>
+      <v-list nav color="#0073b1" variant="elevated">
+        <v-list-item
+          href="crm.html"
+          title="Open CRM"
+          append-icon="mdi-open-in-new"
+        />
+      </v-list>
+
+      <v-divider />
+
       <v-list nav color="#0073b1">
         <v-list-item
           v-for="tab in tabs"
