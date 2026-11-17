@@ -4,7 +4,7 @@ import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 import SettingsView from '@/entrypoints/settings/views/SettingsView.vue';
 import SignInView from '@/entrypoints/settings/views/SignInView.vue';
-import SettingsAppBar from '@/components/settings/SettingsAppBar.vue';
+import LayoutAppBar from '@/components/common/layout/LayoutAppBar.vue';
 
 const { user, loading: loadingAuth } = useAuth();
 
@@ -21,7 +21,7 @@ initTheme();
       Loading Settings...
     </div>
     <template v-else>
-      <SettingsAppBar />
+      <LayoutAppBar title-suffix="Settings" />
 
       <v-main>
         <SettingsView v-if="user" />

@@ -4,6 +4,10 @@ import { useAuth } from '@/composables/useAuth';
 import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 
+defineProps<{
+  titleSuffix?: string;
+}>();
+
 const { user, logout } = useAuth();
 const { theme } = useDataStore();
 const selectedTheme = computed({
@@ -24,7 +28,7 @@ const themeOptions = [
       <v-img src="/logo.svg" />
     </v-avatar>
     <v-app-bar-title tag="h1" class="app-bar-title-text">
-      LinkedIn AID Settings
+      LinkedIn AID <slot name="title-suffix">{{ titleSuffix }}</slot>
     </v-app-bar-title>
 
     <v-spacer />
