@@ -1,5 +1,10 @@
+<script setup lang="ts">
+import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
+</script>
+
 <template>
-  <div>
+  <v-container class="pa-0" fluid>
+    <CrmPageHeading eyebrow="WORKSPACE TOOLS" title="Signals" description="Choose the buying signals you want to follow." />
     <v-card title="Signals Configuration" class="mb-4">
       <v-card-text>
         <div class="placeholder-content">
@@ -7,7 +12,7 @@
         </div>
       </v-card-text>
     </v-card>
-  </div>
+  </v-container>
 </template>
 
 <style scoped>

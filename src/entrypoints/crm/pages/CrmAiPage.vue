@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
 </script>
 
 <template>
-  <div>
+  <v-container class="pa-0" fluid>
+    <CrmPageHeading eyebrow="WORKSPACE TOOLS" title="AI" description="Configure how AI can support your CRM workflow." />
     <v-card title="AI Configuration" class="mb-4">
       <v-card-text>
         <div class="placeholder-content">
@@ -10,7 +12,7 @@
         </div>
       </v-card-text>
     </v-card>
-  </div>
+  </v-container>
 </template>
 
 <style scoped>

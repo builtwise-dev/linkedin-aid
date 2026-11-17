@@ -7,6 +7,8 @@ const navigation = [
   { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/' },
   { title: 'Leads & companies', icon: 'mdi-account-multiple-outline', to: '/records' },
   { title: 'Activity', icon: 'mdi-timeline-text-outline', to: '/activity' },
+  { title: 'AI', icon: 'mdi-auto-fix', to: '/ai' },
+  { title: 'Signals', icon: 'mdi-radar', to: '/signals' },
 ];
 </script>
 
