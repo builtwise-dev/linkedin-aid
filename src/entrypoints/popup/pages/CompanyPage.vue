@@ -15,7 +15,7 @@ import AppSegmentedControl from '@/components/ui/AppSegmentedControl.vue';
 import AppCheckbox from '@/components/ui/AppCheckbox.vue';
 import AppCopyButton from '@/components/ui/AppCopyButton.vue';
 import BulkCopyModal from '@/components/modals/BulkCopyModal.vue';
-import CrmSaveControl from '@/components/crm/CrmSaveControl.vue';
+import CrmSaveControl from '@/components/crm-indicators/CrmSaveControl.vue';
 
 interface Props {
   tabUrl: string;

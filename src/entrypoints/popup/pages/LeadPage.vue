@@ -5,7 +5,7 @@ import { useAuth } from '@/composables/useAuth';
 import { useCrmSave } from '@/composables/useCrmSave';
 import { useCrmLeadSavedStatus } from '@/composables/useCrmSavedStatus';
 import { getLeadAvatarUrl } from '@/helpers/lead-helper';
-import CrmSaveControl from '@/components/crm/CrmSaveControl.vue';
+import CrmSaveControl from '@/components/crm-indicators/CrmSaveControl.vue';
 import LeadPreview from '../../../components/leads/LeadPreview.vue';
 
 interface Props {
