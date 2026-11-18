@@ -10,8 +10,7 @@ interface TabItem {
 
 const tabs = ref<TabItem[]>([
   { title: 'General', value: 'general', route: '/' },
-  { title: 'Captured entities', value: 'captured_entities', route: '/captured-entities' },
-  { title: 'Sessions', value: 'sessions', route: '/sessions' },
+  { title: 'Captured data', value: 'captured_entities', route: '/captured-data' },
   { title: 'Titles', value: 'titles', route: '/titles' },
   { title: 'Copy', value: 'copy', route: '/copy' },
 ]);
