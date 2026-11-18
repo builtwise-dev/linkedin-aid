@@ -91,6 +91,7 @@ const tabs = computed(() => [
   { value: 'leads', title: `Leads (${ leadsCount.value })` },
   { value: 'companies', title: `Companies (${ companiesCount.value })` },
   { value: 'sessions', title: `Search Sessions (${ sessionsCount.value })` },
+  { value: 'connection_requests', title: `Connection requests`, badge: 'dev' },
 ]);
 
 const selectedLeadUrns = ref(new Set<string>());
@@ -274,9 +275,12 @@ function getCompanyUrl(company: Company) {
         :key="tab.value"
         :value="tab.value"
         :variant="$vuetify.theme.current.dark ? undefined : 'outlined'"
-        style="width: calc(100% / 3)"
+        :style="`width: calc(100% / ${tabs.length})`"
       >
         {{ tab.title }}
+        <template #append>
+          <v-badge v-if="tab.badge" :content="tab.badge" color="primary" class="ml-3"></v-badge>
+        </template>
       </v-btn>
     </v-btn-toggle>
 
@@ -545,6 +549,31 @@ function getCompanyUrl(company: Company) {
           <div v-else class="empty-state">
             No search sessions stored.
           </div>
+        </div>
+
+        <div v-else-if="activeTab === 'connection_requests'" class="nested-tab-content">
+          <v-row>
+            <v-col>
+              <v-list>
+                <v-list-subheader>Connection requests</v-list-subheader>
+              </v-list>
+            </v-col>
+            <v-divider vertical />
+            <v-col>
+              <v-switch
+                label="Autosave to CRM on connection request captured"
+              />
+              <v-switch
+                label="Change status in CRM on connection request accepted"
+                persistent-hint
+                messages="visible"
+              >
+                <template #message>
+                  Only changes status from <b>Request sent</b> to <b>Accepted</b>
+                </template>
+              </v-switch>
+            </v-col>
+          </v-row>
         </div>
       </v-card-text>
     </v-card>
