@@ -7,6 +7,7 @@ const navigation = [
   { title: 'Activity', icon: 'mdi-timeline-text-outline', to: '/activity' },
   { title: 'AI', icon: 'mdi-auto-fix', to: '/ai' },
   { title: 'Signals', icon: 'mdi-radar', to: '/signals' },
+  { title: 'Integrations', icon: 'mdi-connection', to: '/integrations' },
 ];
 </script>
 

@@ -5,6 +5,7 @@ const CrmRecordsPage = () => import('./pages/CrmRecordsPage.vue');
 const CrmActivityPage = () => import('./pages/CrmActivityPage.vue');
 const CrmAiPage = () => import('./pages/CrmAiPage.vue');
 const CrmSignalsPage = () => import('./pages/CrmSignalsPage.vue');
+const CrmIntegrationsPage = () => import('./pages/CrmIntegrationsPage.vue');
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -14,6 +15,7 @@ export const router = createRouter({
     { path: '/activity', name: 'crm-activity', component: CrmActivityPage, meta: { title: 'Activity' } },
     { path: '/ai', name: 'crm-ai', component: CrmAiPage, meta: { title: 'AI' } },
     { path: '/signals', name: 'crm-signals', component: CrmSignalsPage, meta: { title: 'Signals' } },
+    { path: '/integrations', name: 'crm-integrations', component: CrmIntegrationsPage, meta: { title: 'Integrations' } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });
