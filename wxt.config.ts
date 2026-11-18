@@ -17,6 +17,7 @@ export default defineConfig({
         '*://*.linkedin.com/*',
         'https://*.builtwise.dev/*',
         ...(env.WXT_API_URL ? [`${new URL(env.WXT_API_URL).origin}/*`] : []),
+        ...(env.WXT_CDN_URL ? [`${new URL(env.WXT_CDN_URL).origin}/*`] : []),
       ],
       options_ui: {
         page: 'settings.html',
