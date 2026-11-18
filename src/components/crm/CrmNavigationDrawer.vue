@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { User } from 'firebase/auth';
-
-defineProps<{ user: Pick<User, 'displayName' | 'email'> }>();
+import AccountMenu from '@/components/common/layout/AccountMenu.vue';
 
 const navigation = [
   { title: 'Overview', icon: 'mdi-view-dashboard-outline', to: '/' },
@@ -30,13 +28,20 @@ const navigation = [
       <v-list nav>
         <v-list-item prepend-icon="mdi-cog-outline" append-icon="mdi-open-in-new" title="Settings" href="settings.html" />
         <v-divider class="mt-1" />
-        <v-list-item>
-          <template #prepend>
-            <v-avatar size="32" color="primary" variant="tonal"><span class="text-caption">{{ (user.displayName || user.email || 'U').slice(0, 1).toUpperCase() }}</span></v-avatar>
+        <AccountMenu>
+          <template #activator="{ props, user }">
+            <v-list-item v-bind="props" rounded="lg">
+              <template #prepend>
+                <v-avatar size="32" color="primary" variant="tonal">
+                  <v-img v-if="user.photoURL" :src="user.photoURL" :alt="user.displayName || 'User'" />
+                  <span v-else class="text-caption">{{ (user.displayName || user.email || 'U').slice(0, 1).toUpperCase() }}</span>
+                </v-avatar>
+              </template>
+              <v-list-item-title>{{ user.displayName || 'Your workspace' }}</v-list-item-title>
+              <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
+            </v-list-item>
           </template>
-          <v-list-item-title>{{ user.displayName || 'Your workspace' }}</v-list-item-title>
-          <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
-        </v-list-item>
+        </AccountMenu>
       </v-list>
     </template>
   </v-navigation-drawer>

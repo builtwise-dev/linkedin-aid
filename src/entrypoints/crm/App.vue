@@ -3,16 +3,23 @@ import { useAuth } from '@/composables/useAuth';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
 import CrmAppBar from '@/components/crm/CrmAppBar.vue';
+import { useDataStore } from '@/store/data-store';
+import { useAppTheme } from '@/composables/useTheme';
 
 const { user, loading } = useAuth();
+const { isLoaded, loadData } = useDataStore();
+const { initTheme } = useAppTheme();
+
+void loadData();
+initTheme();
 </script>
 
 <template>
   <v-app class="crm-app">
-    <v-container v-if="loading" class="crm-loading" fluid><v-progress-circular indeterminate color="primary" /></v-container>
+    <v-container v-if="loading || !isLoaded" class="crm-loading" fluid><v-progress-circular indeterminate color="primary" /></v-container>
     <SignInView v-else-if="!user" />
     <template v-else>
-      <CrmNavigationDrawer :user="user" />
+      <CrmNavigationDrawer />
       <v-main>
         <CrmAppBar />
         <v-container class="crm-content" fluid>
@@ -24,7 +31,6 @@ const { user, loading } = useAuth();
 </template>
 
 <style>
-.crm-app { background: #f6f8fb; color: #172b4d; }
 .crm-content { max-width: 1440px; padding: 36px 40px 56px; }
 .crm-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 
