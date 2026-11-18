@@ -21,7 +21,7 @@ const navigation = [
     </v-list-item>
     <v-divider />
     <v-list-subheader class="px-6 mt-3">Workspace</v-list-subheader>
-    <v-list nav class="px-3 crm-nav">
+    <v-list nav class="px-3">
       <v-list-item
         v-for="item in navigation"
         :key="item.to"
@@ -55,7 +55,3 @@ const navigation = [
     </template>
   </v-navigation-drawer>
 </template>
-
-<style scoped>
-.crm-nav .v-list-item { margin-bottom: 4px; min-height: 46px; }
-</style>
