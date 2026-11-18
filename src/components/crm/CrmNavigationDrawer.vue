@@ -37,7 +37,7 @@ const navigation = [
       <v-list nav>
         <v-list-item prepend-icon="mdi-cog-outline" append-icon="mdi-open-in-new" title="Settings" href="settings.html" />
         <v-divider class="mt-1" />
-        <AccountMenu location="end">
+        <AccountMenu location="end" list-min-width="250">
           <template #activator="{ props, user }">
             <v-list-item v-bind="props" rounded="lg">
               <template #prepend>

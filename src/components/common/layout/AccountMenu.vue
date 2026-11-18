@@ -7,6 +7,7 @@ import { Anchor } from 'vuetify/framework';
 
 interface Props {
   location?: Anchor;
+  listMinWidth?: string | number;
 }
 defineProps<Props>();
 
@@ -40,7 +41,7 @@ const themeOptions = [
       </slot>
     </template>
 
-    <v-list min-width="250">
+    <v-list :min-width="listMinWidth">
       <v-list-subheader>Theme</v-list-subheader>
       <v-btn-toggle
         v-model="selectedTheme"
