@@ -3,6 +3,12 @@ import { computed } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
+import { Anchor } from 'vuetify/framework';
+
+interface Props {
+  location?: Anchor;
+}
+defineProps<Props>();
 
 const { user, logout } = useAuth();
 const { theme } = useDataStore();
@@ -20,7 +26,7 @@ const themeOptions = [
 </script>
 
 <template>
-  <v-menu v-if="user" :close-on-content-click="false">
+  <v-menu v-if="user" :close-on-content-click="false" :location="location" offset="8">
     <template #activator="{ props }">
       <slot name="activator" :props="props" :user="user">
         <v-btn v-bind="props" variant="text" size="large" rounded class="text-none" aria-label="Open profile menu">
@@ -33,6 +39,7 @@ const themeOptions = [
         </v-btn>
       </slot>
     </template>
+
     <v-list min-width="250">
       <v-list-subheader>Theme</v-list-subheader>
       <v-btn-toggle

@@ -22,13 +22,22 @@ const navigation = [
     <v-divider />
     <v-list-subheader class="px-6 mt-3">Workspace</v-list-subheader>
     <v-list nav class="px-3 crm-nav">
-      <v-list-item v-for="item in navigation" :key="item.to" :to="item.to" :prepend-icon="item.icon" :title="item.title" rounded="lg" color="primary" />
+      <v-list-item
+        v-for="item in navigation"
+        :key="item.to"
+        :to="item.to"
+        :prepend-icon="item.icon"
+        :title="item.title"
+        rounded="lg"
+        color="primary"
+      />
     </v-list>
+
     <template #append>
       <v-list nav>
         <v-list-item prepend-icon="mdi-cog-outline" append-icon="mdi-open-in-new" title="Settings" href="settings.html" />
         <v-divider class="mt-1" />
-        <AccountMenu>
+        <AccountMenu location="end">
           <template #activator="{ props, user }">
             <v-list-item v-bind="props" rounded="lg">
               <template #prepend>
