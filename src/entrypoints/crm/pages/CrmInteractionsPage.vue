@@ -11,13 +11,10 @@ const tabs = computed(() => [
   { value: 'tasks', title: `Tasks (${tasksQuery.records.value.length})` },
   { value: 'notes', title: `Notes (${notesQuery.records.value.length})` },
 ]);
-const loading = computed(() => interactionsQuery.loading.value || tasksQuery.loading.value || notesQuery.loading.value);
 </script>
 
 <template>
   <div>
-    <v-progress-linear v-if="loading" indeterminate color="#0073b1" class="mb-4" />
-
     <v-btn-toggle v-model="activeTab" mandatory divided color="#0073b1" class="mb-4 d-flex">
       <v-btn v-for="tab in tabs" :key="tab.value" :value="tab.value"
         :variant="$vuetify.theme.current.dark ? undefined : 'outlined'" style="width: calc(100% / 3)">
@@ -27,6 +24,7 @@ const loading = computed(() => interactionsQuery.loading.value || tasksQuery.loa
 
     <v-card v-if="activeTab === 'interactions'" title="Interactions">
       <v-alert v-if="interactionsQuery.error.value" type="error" variant="tonal" class="ma-4">Could not load interactions: {{ interactionsQuery.error.value.message }} <v-btn size="small" variant="text" @click="interactionsQuery.refetch()">Retry</v-btn></v-alert>
+      <v-skeleton-loader v-else-if="interactionsQuery.loading.value" type="list-item-two-line, list-item-two-line, list-item-two-line" />
       <v-list v-else-if="interactionsQuery.records.value.length" lines="two">
         <v-list-item v-for="item in interactionsQuery.records.value" :key="item.id">
           <v-list-item-title>{{ item.summary || item.kind }}</v-list-item-title>
@@ -39,6 +37,7 @@ const loading = computed(() => interactionsQuery.loading.value || tasksQuery.loa
 
     <v-card v-else-if="activeTab === 'tasks'" title="Tasks">
       <v-alert v-if="tasksQuery.error.value" type="error" variant="tonal" class="ma-4">Could not load tasks: {{ tasksQuery.error.value.message }} <v-btn size="small" variant="text" @click="tasksQuery.refetch()">Retry</v-btn></v-alert>
+      <v-skeleton-loader v-else-if="tasksQuery.loading.value" type="list-item-two-line, list-item-two-line, list-item-two-line" />
       <v-list v-else-if="tasksQuery.records.value.length" lines="two">
         <v-list-item v-for="task in tasksQuery.records.value" :key="task.id">
           <v-list-item-title>{{ task.title }}</v-list-item-title>
@@ -51,6 +50,7 @@ const loading = computed(() => interactionsQuery.loading.value || tasksQuery.loa
 
     <v-card v-else title="Notes">
       <v-alert v-if="notesQuery.error.value" type="error" variant="tonal" class="ma-4">Could not load notes: {{ notesQuery.error.value.message }} <v-btn size="small" variant="text" @click="notesQuery.refetch()">Retry</v-btn></v-alert>
+      <v-skeleton-loader v-else-if="notesQuery.loading.value" type="list-item-two-line, list-item-two-line, list-item-two-line" />
       <v-list v-else-if="notesQuery.records.value.length" lines="two">
         <v-list-item v-for="note in notesQuery.records.value" :key="note.id">
           <v-list-item-title>{{ note.body }}</v-list-item-title>

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useCrmSave } from '@/composables/useCrmSave';
 import { useCrmCompanies, useCrmLeads, useCrmTags, formatCrmDate } from '@/composables/useCrmData';
 
 const { records: leads, loading: leadsLoading, error: leadsError, refetch: refetchLeads } = useCrmLeads();
 const { records: companies, loading: companiesLoading, error: companiesError, refetch: refetchCompanies } = useCrmCompanies();
 const { records: tags, loading: tagsLoading, error: tagsError, refetch: refetchTags } = useCrmTags();
-const loading = computed(() => leadsLoading.value || companiesLoading.value || tagsLoading.value);
 const { unsaveLead, deleteCompany, removingLead, removingCompany } = useCrmSave();
 
 const removeLead = async (leadId: string) => {
@@ -24,10 +22,9 @@ const removeCompany = async (companyId: string) => {
 
 <template>
   <div>
-    <v-progress-linear v-if="loading" indeterminate color="#0073b1" class="mb-4" />
-
     <v-card title="Saved leads" class="mb-4">
       <v-alert v-if="leadsError" type="error" variant="tonal" class="ma-4">Could not load saved leads: {{ leadsError.message }} <v-btn size="small" variant="text" @click="refetchLeads()">Retry</v-btn></v-alert>
+      <v-skeleton-loader v-else-if="leadsLoading" type="list-item-two-line, list-item-two-line, list-item-two-line" />
       <v-list v-else-if="leads.length" lines="two">
         <v-list-item v-for="lead in leads" :key="lead.id">
           <v-list-item-title>{{ [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.linkedinUrn }}</v-list-item-title>
@@ -45,6 +42,7 @@ const removeCompany = async (companyId: string) => {
 
     <v-card title="Companies" class="mb-4">
       <v-alert v-if="companiesError" type="error" variant="tonal" class="ma-4">Could not load companies: {{ companiesError.message }} <v-btn size="small" variant="text" @click="refetchCompanies()">Retry</v-btn></v-alert>
+      <v-skeleton-loader v-else-if="companiesLoading" type="list-item-two-line, list-item-two-line, list-item-two-line" />
       <v-list v-else-if="companies.length" lines="two">
         <v-list-item v-for="company in companies" :key="company.id">
           <v-list-item-title>{{ company.name }}</v-list-item-title>
@@ -62,6 +60,7 @@ const removeCompany = async (companyId: string) => {
 
     <v-card title="Tags">
       <v-alert v-if="tagsError" type="error" variant="tonal" class="ma-4">Could not load tags: {{ tagsError.message }} <v-btn size="small" variant="text" @click="refetchTags()">Retry</v-btn></v-alert>
+      <v-card-text v-else-if="tagsLoading"><v-skeleton-loader type="chip, chip, chip" /></v-card-text>
       <v-card-text v-else-if="tags.length" class="d-flex flex-wrap ga-2">
         <v-chip v-for="tag in tags" :key="tag.id" size="small">{{ tag.name }}</v-chip>
       </v-card-text>
