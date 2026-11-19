@@ -19,6 +19,14 @@ Keep work in this repository focused and economical. Use these instructions for 
 - Avoid parallel agents for small tasks. Delegate only when the user requests it or independent research materially shortens substantial work.
 - Do not run checks or tests unless the user asks for verification. If asked, choose the narrowest relevant package script and report its result.
 
+## Commits
+
+- Use Semantic Commit Messages in the Conventional Commits form: `<type>(<scope>): <imperative summary>`. Omit the scope when it adds no useful context.
+- Choose a type that matches the change, commonly `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `build`, or `chore`. Existing examples include `feat(crm): expand workspace routes` and `docs: add Codex repository instructions`.
+- Keep the subject concise and specific. Use a body only when context, rationale, or migration details are not clear from the subject and diff.
+- Mark incompatible changes with `!` after the type or scope and explain them with a `BREAKING CHANGE:` footer.
+- Do not create a commit unless the user asks for one.
+
 ## Response style
 
 - Keep updates and the final response concise. State changed files and verification only; include detail when it affects how the user should proceed.
