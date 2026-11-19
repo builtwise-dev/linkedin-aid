@@ -14,14 +14,23 @@ const user = ref<User | null>(auth.currentUser);
 const loading = ref(true);
 const recentEmail = ref<string | null>(null);
 const RECENT_EMAIL_KEY = 'recentAuthEmail';
+const AUTHENTICATED_HINT_KEY = 'crmAuthenticatedHint';
+const hasStoredUser = ref(false);
+let authStateResolved = false;
 
-void browser.storage.local.get(RECENT_EMAIL_KEY).then((result) => {
+void browser.storage.local.get([RECENT_EMAIL_KEY, AUTHENTICATED_HINT_KEY]).then((result) => {
   const email = result[RECENT_EMAIL_KEY];
   if (typeof email === 'string' && email) recentEmail.value = email;
+  if (!authStateResolved) hasStoredUser.value = result[AUTHENTICATED_HINT_KEY] === true;
 });
 
 onAuthStateChanged(auth, (currentUser) => {
+  authStateResolved = true;
   user.value = currentUser;
+  hasStoredUser.value = !!currentUser;
+  void (currentUser
+    ? browser.storage.local.set({ [AUTHENTICATED_HINT_KEY]: true })
+    : browser.storage.local.remove(AUTHENTICATED_HINT_KEY));
   if (currentUser?.email) {
     recentEmail.value = currentUser.email;
     void browser.storage.local.set({ [RECENT_EMAIL_KEY]: currentUser.email });
@@ -74,6 +83,7 @@ export function useAuth() {
 
   return {
     user: readonly(user),
+    hasStoredUser: readonly(hasStoredUser),
     loading: readonly(loading),
     recentEmail: readonly(recentEmail),
     signInWithGoogle,
