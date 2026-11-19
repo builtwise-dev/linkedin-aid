@@ -2,7 +2,6 @@
 import { useAuth } from '@/composables/useAuth';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
-import CrmAppBar from '@/components/crm/CrmAppBar.vue';
 import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 
@@ -21,7 +20,6 @@ initTheme();
     <template v-else>
       <CrmNavigationDrawer />
       <v-main>
-        <CrmAppBar />
         <v-container class="crm-content" fluid>
           <router-view />
         </v-container>
