@@ -2,13 +2,16 @@
 import { ref, computed } from 'vue';
 import { useDataStore } from '@/store/data-store';
 import { titleTargets as defaultTargets, titleStates as defaultStates } from '@/helpers/title-helper';
+import { useAuth } from '@/composables/useAuth';
+import PopupCrmPage from '@/entrypoints/popup/pages/PopupCrmPage.vue';
 
 const { copyLeadSettings } = useDataStore();
+const { user, hasStoredUser } = useAuth();
 
 const targets = computed(() => copyLeadSettings.value?.titleTargets || defaultTargets);
 const states = computed(() => copyLeadSettings.value?.titleStates || defaultStates);
 
-const activeTab = ref<'statuses' | 'targets'>('statuses');
+const activeTab = ref<'statuses' | 'targets' | 'crm'>('statuses');
 const copiedValue = ref<string | null>(null);
 
 const tabs = computed(() => [
@@ -22,6 +25,7 @@ const tabs = computed(() => [
     label: 'Title Targets',
     items: targets.value,
   },
+  ...(user.value || hasStoredUser.value ? [{ key: 'crm' as const, label: 'CRM', items: [] }] : []),
 ]);
 
 const activeItems = computed(() => tabs.value.find((tab) => tab.key === activeTab.value)?.items || []);
@@ -59,7 +63,11 @@ const copyToClipboard = async (text: string, value: string) => {
     </div>
 
     <div class="tab-content">
-      <div class="grid">
+      <div v-if="activeTab === 'crm'">
+        <PopupCrmPage v-if="user" />
+        <p v-else>Loading user...</p>
+      </div>
+      <div v-else class="grid">
         <div
           v-for="item in activeItems"
           :key="item.value"
