@@ -6,13 +6,14 @@ interface TabItem {
   title: string;
   value: string;
   route: string;
+  icon: string;
 }
 
 const tabs = ref<TabItem[]>([
-  { title: 'General', value: 'general', route: '/' },
-  { title: 'Captured data', value: 'captured_entities', route: '/captured-data' },
-  { title: 'Titles', value: 'titles', route: '/titles' },
-  { title: 'Copy', value: 'copy', route: '/copy' },
+  { title: 'General', value: 'general', route: '/', icon: 'mdi-cog-outline' },
+  { title: 'Captured data', value: 'captured_entities', route: '/captured-data', icon: 'mdi-database-outline' },
+  { title: 'Titles', value: 'titles', route: '/titles', icon: 'mdi-format-title' },
+  { title: 'Copy', value: 'copy', route: '/copy', icon: 'mdi-content-copy' },
 ]);
 
 const version = browser.runtime.getManifest().version;
@@ -38,6 +39,7 @@ const version = browser.runtime.getManifest().version;
           :to="tab.route"
           :value="tab.value"
           :title="tab.title"
+          :prepend-icon="tab.icon"
         />
       </v-list>
 
