@@ -4,7 +4,7 @@ import CrmInteractionsPage from './CrmInteractionsPage.vue';
 </script>
 
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading eyebrow="FOLLOW-UPS" title="Activity" description="Review your interactions, tasks, and notes." />
     <CrmInteractionsPage />
   </v-container>

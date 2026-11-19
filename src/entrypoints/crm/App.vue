@@ -20,21 +20,12 @@ initTheme();
     <template v-else>
       <CrmNavigationDrawer />
       <v-main>
-        <v-container class="crm-content" fluid>
-          <router-view />
-        </v-container>
+        <router-view />
       </v-main>
     </template>
   </v-app>
 </template>
 
 <style>
-.crm-content { max-width: 1440px; padding: 36px 40px 56px; }
 .crm-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-
-@media (max-width: 900px) {
-  .crm-content {
-    padding: 24px 20px 40px;
-  }
-}
 </style>

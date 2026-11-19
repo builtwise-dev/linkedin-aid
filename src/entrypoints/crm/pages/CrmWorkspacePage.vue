@@ -11,7 +11,7 @@ const descriptions: Record<string, string> = {
 };
 </script>
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading eyebrow="CRM WORKSPACE" :title="section" :description="descriptions[section]" />
     <v-card rounded="xl" elevation="0" border>
       <v-card-text class="pa-8 text-center">

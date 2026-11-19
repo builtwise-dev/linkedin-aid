@@ -18,7 +18,7 @@ const recentLeads = computed(() => [...leads.records.value].sort((a, b) => b.upd
 </script>
 
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading eyebrow="YOUR PIPELINE" title="Home" description="Keep your saved LinkedIn relationships and follow-ups in one place.">
       <template #actions><v-btn color="primary" prepend-icon="mdi-account-multiple-outline" to="/leads" rounded="lg">Browse leads</v-btn></template>
     </CrmPageHeading>

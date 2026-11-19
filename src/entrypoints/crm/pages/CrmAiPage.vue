@@ -3,7 +3,7 @@ import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
 </script>
 
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading eyebrow="WORKSPACE TOOLS" title="AI" description="Configure how AI can support your CRM workflow." />
     <v-card title="AI Configuration" class="mb-4">
       <v-card-text>

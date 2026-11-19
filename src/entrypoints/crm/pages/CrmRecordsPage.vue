@@ -5,7 +5,7 @@ withDefaults(defineProps<{ kind?: 'leads' | 'accounts' }>(), { kind: 'leads' });
 </script>
 
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading :eyebrow="kind === 'leads' ? 'PEOPLE' : 'ORGANIZATIONS'" :title="kind === 'leads' ? 'Leads' : 'Accounts'" :description="kind === 'leads' ? 'Manage your saved people and their relationship status.' : 'Manage the companies connected to your CRM relationships.'" />
     <CrmEntitiesPage :kind="kind" />
   </v-container>

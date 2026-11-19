@@ -160,7 +160,7 @@ const integrations = [
 </script>
 
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading
       eyebrow="WORKSPACE TOOLS"
       title="Integrations"

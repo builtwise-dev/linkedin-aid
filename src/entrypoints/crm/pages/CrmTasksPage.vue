@@ -4,7 +4,7 @@ import { useCrmTasks, formatCrmDate } from '@/composables/useCrmData';
 const { records, loading, error, refetch } = useCrmTasks();
 </script>
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container>
     <CrmPageHeading eyebrow="FOLLOW-UPS" title="Tasks" description="Keep track of the next steps you need to take." />
     <v-card title="All tasks" rounded="xl" elevation="0" border>
       <v-alert v-if="error" type="error" variant="tonal" class="ma-4">Could not load tasks: {{ error.message }} <v-btn size="small" variant="text" @click="refetch()">Retry</v-btn></v-alert>
