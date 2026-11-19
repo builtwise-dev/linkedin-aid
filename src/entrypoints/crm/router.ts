@@ -4,7 +4,7 @@ const CrmHomePage = () => import('./pages/CrmHomePage.vue');
 const CrmRecordsPage = () => import('./pages/CrmRecordsPage.vue');
 const CrmActivityPage = () => import('./pages/CrmActivityPage.vue');
 const CrmAiPage = () => import('./pages/CrmAiPage.vue');
-const CrmSignalsPage = () => import('./pages/CrmSignalsPage.vue');
+const CrmActionsPage = () => import('./pages/CrmActionsPage.vue');
 const CrmIntegrationsPage = () => import('./pages/CrmIntegrationsPage.vue');
 const CrmWorkspacePage = () => import('./pages/CrmWorkspacePage.vue');
 const CrmTasksPage = () => import('./pages/CrmTasksPage.vue');
@@ -23,11 +23,11 @@ export const router = createRouter({
     { path: '/messaging', name: 'crm-messaging', component: CrmWorkspacePage, props: { section: 'Messaging' }, meta: { title: 'Messaging' } },
     { path: '/sequences', name: 'crm-sequences', component: CrmWorkspacePage, props: { section: 'Sequences' }, meta: { title: 'Sequences' } },
     { path: '/workflows', name: 'crm-workflows', component: CrmWorkspacePage, props: { section: 'Workflows' }, meta: { title: 'Workflows' } },
-    { path: '/actions', name: 'crm-actions', component: CrmWorkspacePage, props: { section: 'Actions' }, meta: { title: 'Actions' } },
+    { path: '/actions', name: 'crm-actions', component: CrmActionsPage, meta: { title: 'Actions' } },
     { path: '/deals', name: 'crm-deals', component: CrmWorkspacePage, props: { section: 'Deals' }, meta: { title: 'Deals' } },
     { path: '/activity', name: 'crm-activity', component: CrmActivityPage, meta: { title: 'Activity' } },
     { path: '/ai', name: 'crm-ai', component: CrmAiPage, meta: { title: 'AI' } },
-    { path: '/signals', name: 'crm-signals', component: CrmSignalsPage, meta: { title: 'Signals' } },
+    { path: '/signals', redirect: '/actions' },
     { path: '/integrations', name: 'crm-integrations', component: CrmIntegrationsPage, meta: { title: 'Integrations' } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

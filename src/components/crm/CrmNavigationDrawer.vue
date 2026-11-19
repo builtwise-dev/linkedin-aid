@@ -9,7 +9,6 @@ const navigation = [
       { title: 'Calendar', icon: 'mdi-calendar-month-outline', to: '/calendar' },
       { title: 'Tasks', icon: 'mdi-check-circle-outline', to: '/tasks' },
       { title: 'Actions', icon: 'mdi-lightning-bolt-outline', to: '/actions' },
-      { title: 'Signals', icon: 'mdi-radar', to: '/signals' },
     ],
   },
   {
