@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
-import CrmSignalsPage from './CrmSignalsPage.vue';
 
 type ActionIdea = { title: string; description: string; when: string };
 type ActionGroup = { title: string; icon: string; actions: ActionIdea[] };
@@ -30,44 +29,64 @@ const groups: ActionGroup[] = [
   ]},
 ];
 const totalActions = computed(() => groups.reduce((total, group) => total + group.actions.length, 0));
-function scrollToSignals() {
-  document.getElementById('signals')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 </script>
 
 <template>
   <v-container>
-    <CrmPageHeading eyebrow="RECOMMENDED NEXT STEPS" title="Actions" description="Choose a useful next step and add it to Tasks when you are ready." />
-    <v-alert type="info" variant="tonal" rounded="lg" class="mb-5" icon="mdi-lightbulb-on-outline">
-      Configure signals to choose what should create recommendations. Detected signals will surface related actions here.
-      <template #append><v-btn variant="text" prepend-icon="mdi-radar" @click="scrollToSignals">Configure signals</v-btn></template>
-    </v-alert>
+    <CrmPageHeading
+      eyebrow="RECOMMENDED NEXT STEPS"
+      title="Actions"
+      description="Choose a useful next step and add it to Tasks when you are ready."
+    >
+      <template #actions>
+        <v-btn variant="outlined" prepend-icon="mdi-radar" to="/actions/signals">Configure signals</v-btn>
+      </template>
+    </CrmPageHeading>
+
     <v-card rounded="xl" elevation="0" border class="mb-6">
       <v-card-item><v-card-title>Triggered actions</v-card-title><v-card-subtitle>Recommended next steps created when a selected signal is detected.</v-card-subtitle></v-card-item>
       <v-divider />
       <v-card-text class="d-flex flex-column align-center text-center py-8">
         <v-avatar color="primary" variant="tonal" size="48" class="mb-3"><v-icon icon="mdi-radar" /></v-avatar>
         <div class="text-subtitle-1 font-weight-medium">No triggered actions yet</div>
-        <div class="text-body-2 text-medium-emphasis mt-1" style="max-width: 520px">When monitoring detects a selected signal, its related recommendation will appear here. You’ll be able to turn it into a task.</div>
-        <v-btn class="mt-4" variant="tonal" color="primary" prepend-icon="mdi-tune-variant" @click="scrollToSignals">Choose signals to monitor</v-btn>
+        <div class="text-body-2 text-medium-emphasis mt-1" style="max-width: 520px">
+          When monitoring detects a selected signal, its related recommendation will appear here. You’ll be able to turn it into a task.
+        </div>
+
+        <div class="d-flex justify-center ga-2 mt-4">
+          <v-btn variant="tonal" color="primary" prepend-icon="mdi-radar" to="/actions/signals">Choose signals to monitor</v-btn>
+          <v-btn variant="text" color="primary" prepend-icon="mdi-check-circle-outline" to="/tasks">View tasks</v-btn>
+        </div>
       </v-card-text>
     </v-card>
-    <div class="d-flex align-center justify-space-between mb-4"><div><div class="text-h6">Action library</div><div class="text-body-2 text-medium-emphasis">{{ totalActions }} next-step templates across four groups</div></div><v-btn variant="tonal" color="primary" prepend-icon="mdi-check-circle-outline" to="/tasks">View tasks</v-btn></div>
+
+    <div class="mt-4">
+      <h3 class="text-body-large mb-3">Categorized actions</h3>
+    </div>
+
     <v-row>
       <v-col v-for="group in groups" :key="group.title" cols="12" xl="6">
         <v-card rounded="xl" elevation="0" border class="h-100">
-          <v-card-item><template #prepend><v-avatar color="primary" variant="tonal" rounded="lg"><v-icon :icon="group.icon" /></v-avatar></template><v-card-title>{{ group.title }}</v-card-title><template #append><v-chip size="small" variant="tonal">{{ group.actions.length }}</v-chip></template></v-card-item>
+          <v-card-item>
+            <template #prepend>
+              <v-avatar color="primary" variant="tonal" rounded="lg">
+                <v-icon :icon="group.icon" />
+              </v-avatar>
+            </template>
+            <v-card-title>{{ group.title }}</v-card-title>
+          </v-card-item>
           <v-divider />
           <v-list lines="two" class="py-0">
             <v-list-item v-for="action in group.actions" :key="action.title" class="py-2">
               <v-list-item-title class="text-body-2 font-weight-medium">{{ action.title }}</v-list-item-title>
               <v-list-item-subtitle class="text-wrap mt-1">{{ action.description }}<br><span class="text-caption">Useful when: {{ action.when }}</span></v-list-item-subtitle>
-              <template #append><v-chip size="small" variant="tonal" color="default">Task conversion later</v-chip></template>
+              <template #append>
+                <v-chip size="small" variant="tonal" color="default">0</v-chip>
+              </template>
             </v-list-item>
           </v-list>
         </v-card>
       </v-col>
     </v-row>
-    <CrmSignalsPage />
   </v-container>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
 
 type Signal = { title: string; detail: string; source: string; state: 'CRM foundation' | 'Integration needed' | 'Later phase' };
 type SignalGroup = { title: string; icon: string; summary: string; signals: Signal[] };
@@ -61,41 +62,47 @@ const visibleGroups = computed(() => groups.filter(group => (selectedGroup.value
 const enabledCount = computed(() => enabledSignals.value.length);
 const stateColor = (state: Signal['state']) => state === 'CRM foundation' ? 'success' : state === 'Integration needed' ? 'warning' : 'default';
 </script>
+
 <template>
-  <section id="signals" class="mt-8">
-    <div class="d-flex flex-wrap align-center justify-space-between ga-4 mb-4">
-      <div><div class="text-h6">Signal settings</div><div class="text-body-2 text-medium-emphasis">Choose which changes you want to monitor.</div></div>
-      <v-chip color="primary" variant="tonal">{{ enabledCount }} selected</v-chip>
-    </div>
-    <v-alert type="info" variant="tonal" rounded="lg" class="mb-5" icon="mdi-information-outline">
-      Your selections are saved in this browser. Detection will begin when the required data sources are connected.
-    </v-alert>
-    <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
-      <v-chip-group v-model="selectedGroup" selected-class="text-primary" mandatory>
-        <v-chip value="All signals" filter variant="outlined">All signals</v-chip>
-        <v-chip v-for="group in groups" :key="group.title" :value="group.title" filter variant="outlined">{{ group.title }}</v-chip>
-      </v-chip-group>
-      <v-text-field v-model="search" label="Find a signal" prepend-inner-icon="mdi-magnify" density="compact" variant="outlined" hide-details clearable style="max-width: 260px" />
-    </div>
-    <v-row>
-      <v-col v-for="group in visibleGroups" :key="group.title" cols="12" xl="6">
-        <v-card rounded="xl" elevation="0" border class="h-100">
-          <v-card-item>
-            <template #prepend><v-avatar color="primary" variant="tonal" rounded="lg"><v-icon :icon="group.icon" /></v-avatar></template>
-            <v-card-title>{{ group.title }}</v-card-title><v-card-subtitle>{{ group.summary }}</v-card-subtitle>
-            <template #append><v-chip size="small" variant="tonal">{{ group.signals.length }}</v-chip></template>
-          </v-card-item>
-          <v-divider />
-          <v-list lines="two" class="py-0">
-            <v-list-item v-for="signal in group.signals" :key="signal.title" class="py-2">
-              <v-list-item-title class="text-body-2 font-weight-medium">{{ signal.title }}</v-list-item-title>
-              <v-list-item-subtitle class="text-wrap mt-1">{{ signal.detail }}</v-list-item-subtitle>
-              <template #append><div class="d-flex align-center ga-3"><div class="d-flex flex-column align-end ga-1"><v-chip size="x-small" :color="stateColor(signal.state)" variant="tonal">{{ signal.state }}</v-chip><span class="text-caption text-medium-emphasis">{{ signal.source }}</span></div><v-switch :model-value="enabledSignals.includes(signal.title)" color="primary" density="compact" hide-details :aria-label="`Monitor ${signal.title}`" @update:model-value="toggleSignal(signal.title, !!$event)" /></div></template>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </v-col>
-      <v-col v-if="visibleGroups.length === 0" cols="12"><v-card border rounded="xl" elevation="0"><v-card-text class="text-medium-emphasis">No signals match “{{ search }}”. Try another search.</v-card-text></v-card></v-col>
-    </v-row>
-  </section>
+  <v-container>
+    <CrmPageHeading eyebrow="ACTIONS · CONFIGURATION" title="Signals" description="Choose which changes should trigger recommended actions." >
+      <template #actions><v-btn variant="text" prepend-icon="mdi-arrow-left" to="/actions" exact>Back to actions</v-btn></template>
+    </CrmPageHeading>
+    <section id="signals">
+      <div class="d-flex flex-wrap align-center justify-space-between ga-4 mb-4">
+        <div><div class="text-h6">Signal settings</div><div class="text-body-2 text-medium-emphasis">Choose which changes you want to monitor.</div></div>
+        <v-chip color="primary" variant="tonal">{{ enabledCount }} selected</v-chip>
+      </div>
+      <v-alert type="info" variant="tonal" rounded="lg" class="mb-5" icon="mdi-information-outline">
+        Your selections are saved in this browser. Detection will begin when the required data sources are connected.
+      </v-alert>
+      <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-4">
+        <v-chip-group v-model="selectedGroup" selected-class="text-primary" mandatory>
+          <v-chip value="All signals" filter variant="outlined">All signals</v-chip>
+          <v-chip v-for="group in groups" :key="group.title" :value="group.title" filter variant="outlined">{{ group.title }}</v-chip>
+        </v-chip-group>
+        <v-text-field v-model="search" label="Find a signal" prepend-inner-icon="mdi-magnify" density="compact" variant="outlined" hide-details clearable style="max-width: 260px" />
+      </div>
+      <v-row>
+        <v-col v-for="group in visibleGroups" :key="group.title" cols="12" xl="6">
+          <v-card rounded="xl" elevation="0" border class="h-100">
+            <v-card-item>
+              <template #prepend><v-avatar color="primary" variant="tonal" rounded="lg"><v-icon :icon="group.icon" /></v-avatar></template>
+              <v-card-title>{{ group.title }}</v-card-title><v-card-subtitle>{{ group.summary }}</v-card-subtitle>
+              <template #append><v-chip size="small" variant="tonal">{{ group.signals.length }}</v-chip></template>
+            </v-card-item>
+            <v-divider />
+            <v-list lines="two" class="py-0">
+              <v-list-item v-for="signal in group.signals" :key="signal.title" class="py-2">
+                <v-list-item-title class="text-body-2 font-weight-medium">{{ signal.title }}</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap mt-1">{{ signal.detail }}</v-list-item-subtitle>
+                <template #append><div class="d-flex align-center ga-3"><div class="d-flex flex-column align-end ga-1"><v-chip size="x-small" :color="stateColor(signal.state)" variant="tonal">{{ signal.state }}</v-chip><span class="text-caption text-medium-emphasis">{{ signal.source }}</span></div><v-switch :model-value="enabledSignals.includes(signal.title)" color="primary" density="compact" hide-details :aria-label="`Monitor ${signal.title}`" @update:model-value="toggleSignal(signal.title, !!$event)" /></div></template>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-col v-if="visibleGroups.length === 0" cols="12"><v-card border rounded="xl" elevation="0"><v-card-text class="text-medium-emphasis">No signals match “{{ search }}”. Try another search.</v-card-text></v-card></v-col>
+      </v-row>
+    </section>
+  </v-container>
 </template>
