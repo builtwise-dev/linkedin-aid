@@ -20,15 +20,18 @@ const navigation = [
       <v-list-item-title class="text-subtitle-1 font-weight-bold">LinkedIn AID</v-list-item-title>
       <v-list-item-subtitle>CRM workspace</v-list-item-subtitle>
     </v-list-item>
+
     <v-divider />
-    <v-list-subheader class="px-6 mt-3">Workspace</v-list-subheader>
+
     <v-list nav class="px-3">
+      <v-list-subheader>Workspace</v-list-subheader>
       <v-list-item
         v-for="item in navigation"
         :key="item.to"
         :to="item.to"
         :prepend-icon="item.icon"
         :title="item.title"
+        density="compact"
         rounded="lg"
         color="primary"
       />
