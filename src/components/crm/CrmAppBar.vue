@@ -3,10 +3,10 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 
-const breadcrumbs = [
+const breadcrumbs = computed(() => [
   { title: 'Workspace' },
   { title: String(route.meta.title || 'CRM'), disabled: true },
-];
+]);
 </script>
 
 <template>
