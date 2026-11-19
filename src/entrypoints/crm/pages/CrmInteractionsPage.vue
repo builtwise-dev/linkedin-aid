@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useCrmInteractions, useCrmNotes, useCrmTasks, formatCrmDate } from '@/composables/useCrmData';
+import { useCrmInteractions, useCrmNotes, formatCrmDate } from '@/composables/useCrmData';
 
 const activeTab = ref('interactions');
 const interactionsQuery = useCrmInteractions(computed(() => activeTab.value === 'interactions'));
-const tasksQuery = useCrmTasks(computed(() => activeTab.value === 'tasks'));
 const notesQuery = useCrmNotes(computed(() => activeTab.value === 'notes'));
 const tabs = computed(() => [
   { value: 'interactions', title: `Interactions (${interactionsQuery.records.value.length})` },
-  { value: 'tasks', title: `Tasks (${tasksQuery.records.value.length})` },
   { value: 'notes', title: `Notes (${notesQuery.records.value.length})` },
 ]);
 </script>
@@ -17,7 +15,7 @@ const tabs = computed(() => [
   <div>
     <v-btn-toggle v-model="activeTab" mandatory divided color="#0073b1" class="mb-4 d-flex">
       <v-btn v-for="tab in tabs" :key="tab.value" :value="tab.value"
-        :variant="$vuetify.theme.current.dark ? undefined : 'outlined'" style="width: calc(100% / 3)">
+        :variant="$vuetify.theme.current.dark ? undefined : 'outlined'" style="width: calc(100% / 2)">
         {{ tab.title }}
       </v-btn>
     </v-btn-toggle>
@@ -33,19 +31,6 @@ const tabs = computed(() => [
         </v-list-item>
       </v-list>
       <v-card-text v-else-if="!interactionsQuery.loading.value" class="text-medium-emphasis">No interactions yet.</v-card-text>
-    </v-card>
-
-    <v-card v-else-if="activeTab === 'tasks'" title="Tasks">
-      <v-alert v-if="tasksQuery.error.value" type="error" variant="tonal" class="ma-4">Could not load tasks: {{ tasksQuery.error.value.message }} <v-btn size="small" variant="text" @click="tasksQuery.refetch()">Retry</v-btn></v-alert>
-      <v-skeleton-loader v-else-if="tasksQuery.loading.value" type="list-item-two-line, list-item-two-line, list-item-two-line" />
-      <v-list v-else-if="tasksQuery.records.value.length" lines="two">
-        <v-list-item v-for="task in tasksQuery.records.value" :key="task.id">
-          <v-list-item-title>{{ task.title }}</v-list-item-title>
-          <v-list-item-subtitle>{{ task.description || task.status }}</v-list-item-subtitle>
-          <template #append><span class="text-caption text-medium-emphasis">{{ task.status }}<template v-if="task.dueAt"> · due {{ formatCrmDate(task.dueAt) }}</template></span></template>
-        </v-list-item>
-      </v-list>
-      <v-card-text v-else-if="!tasksQuery.loading.value" class="text-medium-emphasis">No tasks yet.</v-card-text>
     </v-card>
 
     <v-card v-else title="Notes">
