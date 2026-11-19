@@ -42,6 +42,7 @@ const themeOptions = [
     </template>
 
     <v-list :min-width="listMinWidth">
+      <slot name="list-prepend"></slot>
       <v-list-subheader>Theme</v-list-subheader>
       <v-btn-toggle
         v-model="selectedTheme"
@@ -58,6 +59,7 @@ const themeOptions = [
       </v-btn-toggle>
       <v-divider class="my-2" />
       <v-list-item base-color="error" prepend-icon="mdi-logout" title="Sign out" @click="logout" />
+      <slot name="list-append"></slot>
     </v-list>
   </v-menu>
 </template>

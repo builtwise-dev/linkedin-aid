@@ -42,7 +42,7 @@ const navigation = [
 
 <template>
   <v-navigation-drawer width="264" color="surface">
-    <v-list-item class="px-6 py-5" height="82">
+    <v-list-item class="px-6 py-4">
       <template #prepend>
         <v-avatar color="primary" rounded="lg" size="40"><v-icon icon="mdi-linkedin" color="white" /></v-avatar>
       </template>
@@ -65,16 +65,15 @@ const navigation = [
         :to="item.to"
         :prepend-icon="item.icon"
         :title="item.title"
-        density="compact"
-        rounded="lg"
+        :lines="false"
+        density="comfortable"
         color="primary"
       />
     </v-list>
 
     <template #append>
+      <v-divider />
       <v-list nav>
-        <v-list-item prepend-icon="mdi-cog-outline" append-icon="mdi-open-in-new" title="Settings" href="settings.html" />
-        <v-divider class="mt-1" />
         <AccountMenu location="end" list-min-width="250">
           <template #activator="{ props, user }">
             <v-list-item v-bind="props" rounded="lg">
@@ -87,6 +86,11 @@ const navigation = [
               <v-list-item-title>{{ user.displayName || 'Your workspace' }}</v-list-item-title>
               <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
             </v-list-item>
+          </template>
+
+          <template #list-prepend>
+            <v-list-item prepend-icon="mdi-cog-outline" append-icon="mdi-open-in-new" title="Settings" href="settings.html" />
+            <v-divider class="mt-1" />
           </template>
         </AccountMenu>
       </v-list>
