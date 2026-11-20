@@ -33,6 +33,7 @@ const navigation = [
     groupName: 'Tools',
     items: [
       { title: 'AI', icon: 'mdi-auto-fix', to: '/ai' },
+      { title: 'Plugins', icon: 'mdi-puzzle-outline', to: '/plugins' },
       { title: 'Integrations', icon: 'mdi-connection', to: '/integrations' },
     ],
   },
