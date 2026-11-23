@@ -10,6 +10,10 @@ defineProps<Props>();
 
 <template>
   <v-app-bar flat color="surface" class="border-b">
+    <template #prepend>
+      <slot name="prepend"></slot>
+    </template>
+
     <template v-if="backTo">
       <v-btn
         :to="backTo"
@@ -35,5 +39,9 @@ defineProps<Props>();
         </div>
       </div>
     </v-app-bar-title>
+
+    <template #append>
+      <slot name="append"></slot>
+    </template>
   </v-app-bar>
 </template>

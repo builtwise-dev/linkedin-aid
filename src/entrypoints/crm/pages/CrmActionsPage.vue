@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
+import CrmPageNavBar from '@/components/crm/CrmPageNavBar.vue';
 
 type ActionIdea = { title: string; description: string; when: string };
 type ActionGroup = { title: string; icon: string; actions: ActionIdea[] };
@@ -32,17 +32,16 @@ const totalActions = computed(() => groups.reduce((total, group) => total + grou
 </script>
 
 <template>
-  <v-container>
-    <CrmPageHeading
-      eyebrow="RECOMMENDED NEXT STEPS"
-      title="Actions"
-      description="Choose a useful next step and add it to Tasks when you are ready."
-    >
-      <template #actions>
-        <v-btn variant="outlined" prepend-icon="mdi-radar" to="/actions/signals">Configure signals</v-btn>
-      </template>
-    </CrmPageHeading>
+  <CrmPageNavBar
+    title="Actions"
+    description="Choose a useful next step and add it to Tasks when you are ready"
+  >
+    <template #append>
+      <v-btn variant="tonal" prepend-icon="mdi-radar" to="/actions/signals" class="mr-4">Configure signals</v-btn>
+    </template>
+  </CrmPageNavBar>
 
+  <v-container>
     <v-card rounded="xl" elevation="0" border class="mb-6">
       <v-card-item><v-card-title>Triggered actions</v-card-title><v-card-subtitle>Recommended next steps created when a selected signal is detected.</v-card-subtitle></v-card-item>
       <v-divider />
