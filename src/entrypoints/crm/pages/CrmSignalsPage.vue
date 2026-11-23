@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
+import CrmPageNavBar from '@/components/crm/CrmPageNavBar.vue';
 
 type Signal = { title: string; detail: string; source: string; state: 'CRM foundation' | 'Integration needed' | 'Later phase' };
 type SignalGroup = { title: string; icon: string; summary: string; signals: Signal[] };
@@ -64,13 +64,17 @@ const stateColor = (state: Signal['state']) => state === 'CRM foundation' ? 'suc
 </script>
 
 <template>
+  <CrmPageNavBar
+    title="Signals"
+    description="Choose which changes should trigger recommended actions"
+    icon="mdi-radar"
+    back-to="/actions"
+  />
+
   <v-container>
-    <CrmPageHeading eyebrow="ACTIONS · CONFIGURATION" title="Signals" description="Choose which changes should trigger recommended actions." >
-      <template #actions><v-btn variant="text" prepend-icon="mdi-arrow-left" to="/actions" exact>Back to actions</v-btn></template>
-    </CrmPageHeading>
     <section id="signals">
       <div class="d-flex flex-wrap align-center justify-space-between ga-4 mb-4">
-        <div><div class="text-h6">Signal settings</div><div class="text-body-2 text-medium-emphasis">Choose which changes you want to monitor.</div></div>
+        <div class="text-body-large text-medium-emphasis">Choose which changes you want to monitor.</div>
         <v-chip color="primary" variant="tonal">{{ enabledCount }} selected</v-chip>
       </div>
       <v-alert type="info" variant="tonal" rounded="lg" class="mb-5" icon="mdi-information-outline">
