@@ -1,0 +1,3 @@
+mutation SaveDeal($input: SaveDealInput!) {
+  saveDeal(input: $input) { id }
+}

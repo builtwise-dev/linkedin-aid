@@ -12,6 +12,7 @@ const CrmPluginDetailPage = () => import('./pages/CrmPluginDetailPage.vue');
 const CrmWorkspacePage = () => import('./pages/CrmWorkspacePage.vue');
 const CrmTasksPage = () => import('./pages/CrmTasksPage.vue');
 const CrmSegmentsPage = () => import('./pages/CrmSegmentsPage.vue');
+const CrmDealsPage = () => import('./pages/CrmDealsPage.vue');
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -27,7 +28,7 @@ export const router = createRouter({
     { path: '/workflows', name: 'crm-workflows', component: CrmWorkspacePage, props: { section: 'Workflows' }, meta: { title: 'Workflows' } },
     { path: '/actions', name: 'crm-actions', component: CrmActionsPage, meta: { title: 'Actions' } },
     { path: '/actions/signals', name: 'crm-action-signals', component: CrmSignalsPage, meta: { title: 'Signals' } },
-    { path: '/deals', name: 'crm-deals', component: CrmWorkspacePage, props: { section: 'Deals' }, meta: { title: 'Deals' } },
+    { path: '/deals', name: 'crm-deals', component: CrmDealsPage, meta: { title: 'Deals' } },
     { path: '/activity', name: 'crm-activity', component: CrmActivityPage, meta: { title: 'Activity' } },
     { path: '/ai', name: 'crm-ai', component: CrmAiPage, meta: { title: 'AI' } },
     { path: '/integrations', name: 'crm-integrations', component: CrmIntegrationsPage, meta: { title: 'Integrations' } },

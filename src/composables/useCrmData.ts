@@ -36,9 +36,9 @@ export interface CrmCompany {
 }
 
 export interface CrmTag { id: string; name: string; createdAt: string }
-export interface CrmNote { id: string; body: string; personId?: string | null; companyId?: string | null; createdAt: string }
-export interface CrmTask { id: string; title: string; description?: string | null; status: string; dueAt?: string | null; personId?: string | null; companyId?: string | null; updatedAt: string }
-export interface CrmInteraction { id: string; kind: string; summary?: string | null; channel?: string | null; outcome?: string | null; occurredAt: string; personId?: string | null; companyId?: string | null }
+export interface CrmNote { id: string; body: string; personId?: string | null; companyId?: string | null; dealId?: string | null; createdAt: string }
+export interface CrmTask { id: string; title: string; description?: string | null; status: string; dueAt?: string | null; personId?: string | null; companyId?: string | null; dealId?: string | null; updatedAt: string }
+export interface CrmInteraction { id: string; kind: string; summary?: string | null; channel?: string | null; outcome?: string | null; occurredAt: string; personId?: string | null; companyId?: string | null; dealId?: string | null }
 
 function useCrmQuery<TData>(source: string, enabled: MaybeRefOrGetter<boolean> = true) {
   return useQuery<{ [key: string]: TData }>(gql(source) as DocumentNode, {

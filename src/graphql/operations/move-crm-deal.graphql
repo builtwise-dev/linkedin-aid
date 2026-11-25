@@ -1,0 +1,3 @@
+mutation MoveDealToStage($dealId: String!, $stageId: String!) {
+  moveDealToStage(dealId: $dealId, stageId: $stageId) { id stageId }
+}

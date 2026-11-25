@@ -1,0 +1,3 @@
+mutation CreateSalesPipeline($name: String!, $stages: [String!]!) {
+  createSalesPipeline(name: $name, stages: $stages) { id name isDefault stages { id name position category } }
+}

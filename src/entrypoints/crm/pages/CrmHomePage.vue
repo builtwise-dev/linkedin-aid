@@ -19,8 +19,13 @@ const recentPeople = computed(() => [...people.records.value].sort((a, b) => b.u
 
 <template>
   <v-container>
-    <CrmPageHeading eyebrow="YOUR PIPELINE" title="Home" description="Keep your people and companies and follow-ups in one place.">
-      <template #actions><v-btn color="primary" prepend-icon="mdi-account-multiple-outline" to="/people" rounded="lg">Browse people</v-btn></template>
+    <CrmPageHeading eyebrow="YOUR PIPELINE" title="Home" description="Manage relationships, revenue opportunities, and follow-ups in one place.">
+      <template #actions>
+        <div class="d-flex ga-2">
+          <v-btn variant="outlined" prepend-icon="mdi-handshake-outline" to="/deals" rounded="lg">View deals</v-btn>
+          <v-btn color="primary" prepend-icon="mdi-account-multiple-outline" to="/people" rounded="lg">Browse people</v-btn>
+        </div>
+      </template>
     </CrmPageHeading>
     <v-alert v-if="people.error.value || companies.error.value || tasks.error.value" type="warning" variant="tonal" rounded="lg" class="mb-5">Some CRM totals could not be loaded. Open records or activity to retry those sections.</v-alert>
     <v-row class="mb-5">

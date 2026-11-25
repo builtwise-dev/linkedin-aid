@@ -4,6 +4,7 @@ query CrmNotes {
     body
     personId
     companyId
+    dealId
     createdAt
   }
 }

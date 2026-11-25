@@ -1,0 +1,26 @@
+query CrmDealsWorkspace($pipelineId: String) {
+  salesPipelines {
+    id
+    name
+    isDefault
+    stages { id name position category }
+  }
+  dealsList(pipelineId: $pipelineId) {
+    id
+    title
+    description
+    amount
+    currency
+    expectedCloseAt
+    closedAt
+    companyId
+    pipelineId
+    stageId
+    company { id name }
+    stage { id name category }
+    people { personId person { firstName lastName headline } }
+    updatedAt
+  }
+  companies { id name }
+  people { id firstName lastName }
+}

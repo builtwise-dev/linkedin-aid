@@ -8,5 +8,6 @@ query CrmInteractions {
     occurredAt
     personId
     companyId
+    dealId
   }
 }
