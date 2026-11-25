@@ -27,7 +27,7 @@
     "vue": "^3.5.44",
     "vue-json-pretty": "^2.6.0",
     "vue-router": "^5.4.0",
-    "vuetify": "^4.1.4"
+    "vuetify": "^4.3.4"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^8.0.0",
