@@ -1,7 +1,0 @@
-mutation SaveCrmLead($input: SaveLeadInput!) {
-  saveLead(input: $input) {
-    id
-    linkedinUrn
-    status
-  }
-}

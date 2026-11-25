@@ -3,12 +3,12 @@ import { gql, type DocumentNode } from '@apollo/client';
 import { useQuery } from '@vue/apollo-composable';
 import crmCompaniesSource from '@/graphql/operations/crm-companies.graphql?raw';
 import crmInteractionsSource from '@/graphql/operations/crm-interactions.graphql?raw';
-import crmLeadsSource from '@/graphql/operations/crm-leads.graphql?raw';
+import crmPeopleSource from '@/graphql/operations/crm-people.graphql?raw';
 import crmNotesSource from '@/graphql/operations/crm-notes.graphql?raw';
 import crmTagsSource from '@/graphql/operations/crm-tags.graphql?raw';
 import crmTasksSource from '@/graphql/operations/crm-tasks.graphql?raw';
 
-export interface CrmLead {
+export interface CrmPerson {
   id: string;
   linkedinUrn: string;
   firstName?: string | null;
@@ -16,7 +16,10 @@ export interface CrmLead {
   headline?: string | null;
   currentTitle?: string | null;
   currentCompanyName?: string | null;
-  status: string;
+  lifecycleStage: string;
+  connectionStatus: string;
+  outreachStatus: string;
+  companyRelationships: { companyId: string; roleTitle?: string | null; isCurrent: boolean; company: { id: string; name: string } }[];
   updatedAt: string;
 }
 
@@ -26,14 +29,16 @@ export interface CrmCompany {
   name: string;
   industry?: string | null;
   location?: string | null;
-  status: string;
+  lifecycleStage: string;
+  accountClassification: string;
+  peopleCount?: number;
   updatedAt: string;
 }
 
 export interface CrmTag { id: string; name: string; createdAt: string }
-export interface CrmNote { id: string; body: string; savedLeadId?: string | null; companyId?: string | null; createdAt: string }
-export interface CrmTask { id: string; title: string; description?: string | null; status: string; dueAt?: string | null; savedLeadId?: string | null; companyId?: string | null; updatedAt: string }
-export interface CrmInteraction { id: string; kind: string; summary?: string | null; channel?: string | null; outcome?: string | null; occurredAt: string; savedLeadId?: string | null; companyId?: string | null }
+export interface CrmNote { id: string; body: string; personId?: string | null; companyId?: string | null; createdAt: string }
+export interface CrmTask { id: string; title: string; description?: string | null; status: string; dueAt?: string | null; personId?: string | null; companyId?: string | null; updatedAt: string }
+export interface CrmInteraction { id: string; kind: string; summary?: string | null; channel?: string | null; outcome?: string | null; occurredAt: string; personId?: string | null; companyId?: string | null }
 
 function useCrmQuery<TData>(source: string, enabled: MaybeRefOrGetter<boolean> = true) {
   return useQuery<{ [key: string]: TData }>(gql(source) as DocumentNode, {
@@ -42,9 +47,9 @@ function useCrmQuery<TData>(source: string, enabled: MaybeRefOrGetter<boolean> =
   });
 }
 
-export function useCrmLeads(enabled: MaybeRefOrGetter<boolean> = true) {
-  const query = useCrmQuery<CrmLead[]>(crmLeadsSource, enabled);
-  return { ...query, records: computed(() => query.result.value?.savedLeads ?? []) };
+export function useCrmPeople(enabled: MaybeRefOrGetter<boolean> = true) {
+  const query = useCrmQuery<CrmPerson[]>(crmPeopleSource, enabled);
+  return { ...query, records: computed(() => query.result.value?.people ?? []) };
 }
 
 export function useCrmCompanies(enabled: MaybeRefOrGetter<boolean> = true) {

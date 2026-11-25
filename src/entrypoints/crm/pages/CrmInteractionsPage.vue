@@ -39,7 +39,7 @@ const tabs = computed(() => [
       <v-list v-else-if="notesQuery.records.value.length" lines="two">
         <v-list-item v-for="note in notesQuery.records.value" :key="note.id">
           <v-list-item-title>{{ note.body }}</v-list-item-title>
-          <v-list-item-subtitle>{{ note.savedLeadId ? 'Lead' : note.companyId ? 'Company' : 'Unlinked' }} · {{ formatCrmDate(note.createdAt) }}</v-list-item-subtitle>
+          <v-list-item-subtitle>{{ note.personId ? 'Person' : note.companyId ? 'Company' : 'Unlinked' }} · {{ formatCrmDate(note.createdAt) }}</v-list-item-subtitle>
         </v-list-item>
       </v-list>
       <v-card-text v-else-if="!notesQuery.loading.value" class="text-medium-emphasis">No notes yet.</v-card-text>

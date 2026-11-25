@@ -1,11 +1,15 @@
 import { gql, type DocumentNode } from '@apollo/client';
 import { useMutation } from '@vue/apollo-composable';
 import saveCrmCompanySource from '@/graphql/operations/save-crm-company.graphql?raw';
-import saveCrmLeadSource from '@/graphql/operations/save-crm-lead.graphql?raw';
-import unsaveCrmLeadSource from '@/graphql/operations/unsave-crm-lead.graphql?raw';
+import saveCrmPersonSource from '@/graphql/operations/save-crm-person.graphql?raw';
 import deleteCrmCompanySource from '@/graphql/operations/delete-crm-company.graphql?raw';
+import deleteCrmPersonSource from '@/graphql/operations/delete-crm-person.graphql?raw';
+import updatePersonStatusSource from '@/graphql/operations/update-person-status.graphql?raw';
+import updateCompanyStatusSource from '@/graphql/operations/update-company-status.graphql?raw';
+import linkPersonCompanySource from '@/graphql/operations/link-person-company.graphql?raw';
+import unlinkPersonCompanySource from '@/graphql/operations/unlink-person-company.graphql?raw';
 
-export interface SaveCrmLeadInput {
+export interface SaveCrmPersonInput {
   linkedinUrn: string;
   profileUrl?: string;
   firstName?: string;
@@ -31,25 +35,33 @@ export interface SaveCrmCompanyInput {
 }
 
 export function useCrmSave() {
-  const leadMutation = useMutation<
-    { saveLead: { id: string; linkedinUrn: string; status: string } },
-    { input: SaveCrmLeadInput }
-  >(gql(saveCrmLeadSource) as DocumentNode);
+  const personMutation = useMutation<
+    { savePerson: { id: string; linkedinUrn: string; lifecycleStage: string; connectionStatus: string; outreachStatus: string } },
+    { input: SaveCrmPersonInput }
+  >(gql(saveCrmPersonSource) as DocumentNode);
   const companyMutation = useMutation<
-    { saveCompany: { id: string; linkedinUrn: string; status: string } },
+    { saveCompany: { id: string; linkedinUrn: string; lifecycleStage: string; accountClassification: string } },
     { input: SaveCrmCompanyInput }
   >(gql(saveCrmCompanySource) as DocumentNode);
-  const leadRemoval = useMutation<{ unsaveLead: boolean }, { leadId: string }>(gql(unsaveCrmLeadSource) as DocumentNode);
+  const personRemoval = useMutation<{ deletePerson: boolean }, { personId: string }>(gql(deleteCrmPersonSource) as DocumentNode);
   const companyRemoval = useMutation<{ deleteCompany: boolean }, { companyId: string }>(gql(deleteCrmCompanySource) as DocumentNode);
+  const companyStatusMutation = useMutation<{ updateCompanyStatus: { id: string; lifecycleStage: string; accountClassification: string } }, { companyId: string; lifecycleStage?: string; accountClassification?: string }>(gql(updateCompanyStatusSource) as DocumentNode);
+  const linkPersonCompanyMutation = useMutation<{ linkPersonToCompany: { id: string } }, { personId: string; companyId: string; roleTitle?: string; isCurrent?: boolean }>(gql(linkPersonCompanySource) as DocumentNode);
+  const unlinkPersonCompanyMutation = useMutation<{ unlinkPersonFromCompany: { id: string } }, { personId: string; companyId: string }>(gql(unlinkPersonCompanySource) as DocumentNode);
+  const personStatusMutation = useMutation<{ updatePersonStatus: { id: string; lifecycleStage: string; connectionStatus: string; outreachStatus: string } }, { personId: string; lifecycleStage?: string; connectionStatus?: string; outreachStatus?: string }>(gql(updatePersonStatusSource) as DocumentNode);
 
   return {
-    saveLead: leadMutation.mutate,
+    savePerson: personMutation.mutate,
     saveCompany: companyMutation.mutate,
-    unsaveLead: leadRemoval.mutate,
+    deletePerson: personRemoval.mutate,
     deleteCompany: companyRemoval.mutate,
-    savingLead: leadMutation.loading,
+    updatePersonStatus: personStatusMutation.mutate,
+    updateCompanyStatus: companyStatusMutation.mutate,
+    linkPersonToCompany: linkPersonCompanyMutation.mutate,
+    unlinkPersonFromCompany: unlinkPersonCompanyMutation.mutate,
+    savingPerson: personMutation.loading,
     savingCompany: companyMutation.loading,
-    removingLead: leadRemoval.loading,
+    removingPerson: personRemoval.loading,
     removingCompany: companyRemoval.loading,
   };
 }

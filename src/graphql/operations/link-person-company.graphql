@@ -1,0 +1,5 @@
+mutation LinkPersonToCompany($personId: String!, $companyId: String!, $roleTitle: String, $isCurrent: Boolean) {
+  linkPersonToCompany(personId: $personId, companyId: $companyId, roleTitle: $roleTitle, isCurrent: $isCurrent) {
+    id
+  }
+}

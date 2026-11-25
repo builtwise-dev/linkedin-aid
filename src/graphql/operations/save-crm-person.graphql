@@ -1,0 +1,9 @@
+mutation SaveCrmPerson($input: SavePersonInput!) {
+  savePerson(input: $input) {
+    id
+    linkedinUrn
+    lifecycleStage
+    connectionStatus
+    outreachStatus
+  }
+}

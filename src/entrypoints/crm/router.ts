@@ -17,9 +17,8 @@ export const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', name: 'crm-home', component: CrmHomePage, meta: { title: 'Home' } },
-    { path: '/records', redirect: '/leads' },
-    { path: '/leads', name: 'crm-leads', component: CrmRecordsPage, props: { kind: 'leads' }, meta: { title: 'Leads' } },
-    { path: '/accounts', name: 'crm-accounts', component: CrmRecordsPage, props: { kind: 'accounts' }, meta: { title: 'Accounts' } },
+    { path: '/people', name: 'crm-people', component: CrmRecordsPage, props: { kind: 'people' }, meta: { title: 'People' } },
+    { path: '/companies', name: 'crm-companies', component: CrmRecordsPage, props: { kind: 'companies' }, meta: { title: 'Companies' } },
     { path: '/segments', name: 'crm-segments', component: CrmSegmentsPage, meta: { title: 'Segments' } },
     { path: '/tasks', name: 'crm-tasks', component: CrmTasksPage, meta: { title: 'Tasks' } },
     { path: '/calendar', name: 'crm-calendar', component: CrmWorkspacePage, props: { section: 'Calendar' }, meta: { title: 'Calendar' } },

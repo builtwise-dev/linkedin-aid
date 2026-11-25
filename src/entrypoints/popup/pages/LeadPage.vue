@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { useLeads } from '@/composables/useLeads';
 import { useAuth } from '@/composables/useAuth';
 import { useCrmSave } from '@/composables/useCrmSave';
-import { useCrmLeadSavedStatus } from '@/composables/useCrmSavedStatus';
+import { useCrmPersonStatus } from '@/composables/useCrmSavedStatus';
 import { getLeadAvatarUrl } from '@/helpers/lead-helper';
 import CrmSaveControl from '@/components/crm-indicators/CrmSaveControl.vue';
 import LeadPreview from '../../../components/leads/LeadPreview.vue';
@@ -15,12 +15,12 @@ const props = defineProps<Props>();
 
 const { currentUrlLead } = useLeads(props.tabUrl);
 const { user, loading: authLoading } = useAuth();
-const { saveLead, unsaveLead, savingLead, removingLead } = useCrmSave();
+const { savePerson, deletePerson, savingPerson, removingPerson } = useCrmSave();
 const saveMessage = ref('');
 const saveError = ref(false);
 const savedByMutationUrn = ref<string | null>(null);
 const savedByMutationId = ref<string | null>(null);
-const { isSaved: apiIsSaved, recordId: savedLeadId, loading: statusLoading, error: statusError } = useCrmLeadSavedStatus(
+const { isSaved: apiIsSaved, recordId: personId, loading: statusLoading, error: statusError } = useCrmPersonStatus(
   computed(() => currentUrlLead.value?.entityUrn),
   computed(() => !!user.value && !!currentUrlLead.value?.entityUrn),
 );
@@ -42,7 +42,7 @@ const saveCurrentLead = async () => {
   saveMessage.value = '';
   saveError.value = false;
   try {
-    const result = await saveLead({
+    const result = await savePerson({
       variables: {
         input: {
           linkedinUrn: lead.entityUrn,
@@ -59,28 +59,28 @@ const saveCurrentLead = async () => {
       },
     });
     savedByMutationUrn.value = lead.entityUrn;
-    savedByMutationId.value = result?.data?.saveLead.id || null;
+    savedByMutationId.value = result?.data?.savePerson.id || null;
     locallyRemovedUrn.value = null;
     saveMessage.value = '';
   } catch (error) {
     saveError.value = true;
-    saveMessage.value = error instanceof Error ? error.message : 'Could not save this lead to CRM.';
+    saveMessage.value = error instanceof Error ? error.message : 'Could not save this person to CRM.';
   }
 };
 
 const removeCurrentLead = async () => {
-  const leadId = savedLeadId.value || savedByMutationId.value;
-  if (!leadId || !confirm('Remove this lead from your CRM?')) return;
+  const leadId = personId.value || savedByMutationId.value;
+  if (!leadId || !confirm('Remove this person from your CRM?')) return;
   saveMessage.value = '';
   saveError.value = false;
   try {
-    await unsaveLead({ variables: { leadId } });
+    await deletePerson({ variables: { personId: leadId } });
     locallyRemovedUrn.value = currentUrlLead.value?.entityUrn || null;
     savedByMutationUrn.value = null;
     savedByMutationId.value = null;
   } catch (error) {
     saveError.value = true;
-    saveMessage.value = error instanceof Error ? error.message : 'Could not remove this lead from CRM.';
+    saveMessage.value = error instanceof Error ? error.message : 'Could not remove this person from CRM.';
   }
 };
 </script>
@@ -92,9 +92,9 @@ const removeCurrentLead = async () => {
       :authenticated="!!user"
       :auth-loading="authLoading"
       :checking="statusLoading"
-      :saving="savingLead"
+      :saving="savingPerson"
       :saved="crmSaved"
-      :removing="removingLead"
+      :removing="removingPerson"
       :status-error="statusError?.message || ''"
       :message="saveMessage"
       :message-error="saveError"

@@ -1,0 +1,5 @@
+mutation UnlinkPersonFromCompany($personId: String!, $companyId: String!) {
+  unlinkPersonFromCompany(personId: $personId, companyId: $companyId) {
+    id
+  }
+}

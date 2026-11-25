@@ -23,8 +23,8 @@ const navigation = [
   {
     groupName: 'Data',
     items: [
-      { title: 'Leads', icon: 'mdi-account-multiple-outline', to: '/leads' },
-      { title: 'Accounts', icon: 'mdi-domain', to: '/accounts' },
+      { title: 'People', icon: 'mdi-account-multiple-outline', to: '/people' },
+      { title: 'Companies', icon: 'mdi-domain', to: '/companies' },
       { title: 'Deals', icon: 'mdi-handshake-outline', to: '/deals' },
       { title: 'Segments', icon: 'mdi-tag-multiple-outline', to: '/segments' },
     ],

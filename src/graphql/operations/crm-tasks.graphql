@@ -5,7 +5,7 @@ query CrmTasks {
     description
     status
     dueAt
-    savedLeadId
+    personId
     companyId
     updatedAt
   }

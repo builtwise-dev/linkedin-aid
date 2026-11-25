@@ -1,0 +1,19 @@
+mutation UpdatePersonStatus(
+  $personId: String!
+  $lifecycleStage: String
+  $connectionStatus: String
+  $outreachStatus: String
+) {
+  updatePersonStatus(
+    personId: $personId
+    lifecycleStage: $lifecycleStage
+    connectionStatus: $connectionStatus
+    outreachStatus: $outreachStatus
+  ) {
+    id
+    lifecycleStage
+    connectionStatus
+    outreachStatus
+    updatedAt
+  }
+}

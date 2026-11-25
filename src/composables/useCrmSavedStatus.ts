@@ -1,7 +1,7 @@
 import { computed, type MaybeRefOrGetter, toValue } from 'vue';
 import { gql, type DocumentNode } from '@apollo/client';
 import { useQuery } from '@vue/apollo-composable';
-import leadStatusSource from '@/graphql/operations/crm-saved-lead-status.graphql?raw';
+import personStatusSource from '@/graphql/operations/crm-person-status.graphql?raw';
 import companyStatusSource from '@/graphql/operations/crm-saved-company-status.graphql?raw';
 
 interface SavedRecord {
@@ -13,12 +13,12 @@ interface LookupVariables {
   linkedinUrn: string;
 }
 
-export function useCrmLeadSavedStatus(
+export function useCrmPersonStatus(
   linkedinUrn: MaybeRefOrGetter<string | undefined>,
   enabled: MaybeRefOrGetter<boolean>,
 ) {
-  const query = useQuery<{ savedLead: SavedRecord | null }, LookupVariables>(
-    gql(leadStatusSource) as DocumentNode,
+  const query = useQuery<{ person: SavedRecord | null }, LookupVariables>(
+    gql(personStatusSource) as DocumentNode,
     {
       variables: computed(() => ({ linkedinUrn: toValue(linkedinUrn) || '' })),
       fetchPolicy: 'network-only',
@@ -27,8 +27,8 @@ export function useCrmLeadSavedStatus(
   );
 
   return {
-    isSaved: computed(() => !!query.result.value?.savedLead),
-    recordId: computed(() => query.result.value?.savedLead?.id),
+    isSaved: computed(() => !!query.result.value?.person),
+    recordId: computed(() => query.result.value?.person?.id),
     loading: query.loading,
     error: query.error,
   };

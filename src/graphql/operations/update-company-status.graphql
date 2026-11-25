@@ -1,0 +1,16 @@
+mutation UpdateCompanyStatus(
+  $companyId: String!
+  $lifecycleStage: String
+  $accountClassification: String
+) {
+  updateCompanyStatus(
+    companyId: $companyId
+    lifecycleStage: $lifecycleStage
+    accountClassification: $accountClassification
+  ) {
+    id
+    lifecycleStage
+    accountClassification
+    updatedAt
+  }
+}

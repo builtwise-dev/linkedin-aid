@@ -1,0 +1,6 @@
+query CrmPersonStatus($linkedinUrn: String!) {
+  person(linkedinUrn: $linkedinUrn) {
+    id
+    linkedinUrn
+  }
+}

@@ -5,7 +5,9 @@ query CrmCompanies {
     name
     industry
     location
-    status
+    lifecycleStage
+    accountClassification
+    peopleCount
     updatedAt
   }
 }

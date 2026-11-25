@@ -2,7 +2,7 @@ query CrmNotes {
   crmNotes {
     id
     body
-    savedLeadId
+    personId
     companyId
     createdAt
   }

@@ -1,3 +1,0 @@
-mutation UnsaveCrmLead($leadId: String!) {
-  unsaveLead(leadId: $leadId)
-}
