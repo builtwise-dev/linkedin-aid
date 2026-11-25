@@ -2,11 +2,13 @@
 import { browser } from 'wxt/browser';
 import { useAuth } from '@/composables/useAuth';
 import DeleteAccountDialog from '@/components/settings/dialogs/DeleteAccountDialog.vue';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 
 const { user } = useAuth();
+const { confirmAction } = useConfirmDialog();
 
 const resetLocalSettings = async () => {
-  if (confirm('Are you sure you want to reset all settings?')) {
+  if (await confirmAction({ title: 'Reset all settings?', message: 'Copy, retention, and theme settings will return to their defaults.', confirmText: 'Reset' })) {
     await browser.storage.local.remove(['copyLeadSettings', 'bulkCopyLeadSettings', 'capturedEntitiesTTL', 'theme']);
     alert('Settings reset.');
   }

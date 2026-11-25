@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { gql, type DocumentNode } from '@apollo/client';
 import { useMutation, useQuery } from '@vue/apollo-composable';
 import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 import dealsSource from '@/graphql/operations/crm-deals.graphql?raw';
 import saveDealSource from '@/graphql/operations/save-crm-deal.graphql?raw';
 import moveDealSource from '@/graphql/operations/move-crm-deal.graphql?raw';
@@ -92,8 +93,10 @@ async function moveDeal(deal: Deal, targetStageId: string) {
   await query.refetch();
 }
 
+const { confirmAction } = useConfirmDialog();
+
 async function removeDeal(deal: Deal) {
-  if (!confirm(`Delete “${deal.title}”?`)) return;
+  if (!await confirmAction({ title: `Delete “${deal.title}”?`, message: 'This deal will be permanently deleted.', confirmText: 'Delete' })) return;
   await deleteMutation.mutate({ variables: { dealId: deal.id } });
   await query.refetch();
 }
@@ -115,7 +118,7 @@ async function deletePipeline() {
     pipelineError.value = 'Move or delete all deals in this pipeline before deleting it.';
     return;
   }
-  if (!confirm(`Delete pipeline “${pipeline.name}”? It must not contain any deals.`)) return;
+  if (!await confirmAction({ title: `Delete pipeline “${pipeline.name}”?`, message: 'This pipeline and its stages will be permanently deleted.', confirmText: 'Delete' })) return;
   pipelineError.value = '';
   try {
     await pipelineDeleteMutation.mutate({ variables: { pipelineId: pipeline.id } });

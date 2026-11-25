@@ -4,6 +4,7 @@ import type { CrmPerson } from '@/composables/useCrmData';
 
 defineProps<{ kind: 'people' | 'companies' }>();
 import { useCrmSave } from '@/composables/useCrmSave';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 import { useCrmCompanies, useCrmPeople, formatCrmDate } from '@/composables/useCrmData';
 
 const { records: people, loading: peopleLoading, error: peopleError, refetch: refetchPeople } = useCrmPeople();
@@ -56,8 +57,10 @@ const removeCompanyRelationship = async (companyId: string) => {
   await refreshSelectedPerson();
 };
 
+const { confirmAction } = useConfirmDialog();
+
 const removePerson = async (personId: string) => {
-  if (!confirm('Remove this person from your CRM?')) return;
+  if (!await confirmAction({ title: 'Remove this person from your CRM?', confirmText: 'Remove' })) return;
   await deletePerson({ variables: { personId } });
   await refetchPeople();
 };
@@ -110,7 +113,7 @@ const companyClassificationOptions = [
 ];
 
 const removeCompany = async (companyId: string) => {
-  if (!confirm('Remove this company from your CRM?')) return;
+  if (!await confirmAction({ title: 'Remove this company from your CRM?', confirmText: 'Remove' })) return;
   await deleteCompany({ variables: { companyId } });
   await refetchCompanies();
 };

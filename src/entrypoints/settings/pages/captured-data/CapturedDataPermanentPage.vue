@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useDataStore } from '@/store/data-store';
 import { db } from '@/db/schema';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 import LeadPreviewList from '@/components/leads/LeadPreviewList.vue';
 import CompanyPreview from '@/components/companies/CompanyPreview.vue';
 import SearchSessionPreview from '@/components/search-sessions/SearchSessionPreview.vue';
@@ -174,8 +175,10 @@ const allSessionsSelected = computed({
   }
 });
 
+const { confirmAction } = useConfirmDialog();
+
 const clearLeads = async () => {
-  if (confirm('Are you sure you want to clear all stored leads?')) {
+  if (await confirmAction({ title: 'Clear all stored leads?', confirmText: 'Clear' })) {
     await db.transaction('rw', db.leads, db.leadPositionRelations, async () => {
       await db.leads.clear();
       await db.leadPositionRelations.clear();
@@ -188,7 +191,7 @@ const clearLeads = async () => {
 const clearSelectedLeads = async () => {
   const urns = Array.from(selectedLeadUrns.value);
   if (urns.length === 0) return;
-  if (confirm(`Are you sure you want to clear ${urns.length} selected leads?`)) {
+  if (await confirmAction({ title: `Clear ${urns.length} selected leads?`, confirmText: 'Clear' })) {
     await db.transaction('rw', db.leads, db.leadPositionRelations, async () => {
       await db.leads.bulkDelete(urns);
       await db.leadPositionRelations.where('leadUrn').anyOf(urns).delete();
@@ -199,7 +202,7 @@ const clearSelectedLeads = async () => {
 };
 
 const clearCompanies = async () => {
-  if (confirm('Are you sure you want to clear all stored companies?')) {
+  if (await confirmAction({ title: 'Clear all stored companies?', confirmText: 'Clear' })) {
     await db.companies.clear();
     selectedCompanyUrns.value = new Set();
     alert('Companies cleared.');
@@ -209,7 +212,7 @@ const clearCompanies = async () => {
 const clearSelectedCompanies = async () => {
   const urns = Array.from(selectedCompanyUrns.value);
   if (urns.length === 0) return;
-  if (confirm(`Are you sure you want to clear ${urns.length} selected companies?`)) {
+  if (await confirmAction({ title: `Clear ${urns.length} selected companies?`, confirmText: 'Clear' })) {
     await db.companies.bulkDelete(urns);
     selectedCompanyUrns.value = new Set();
     alert('Selected companies cleared.');
@@ -217,7 +220,7 @@ const clearSelectedCompanies = async () => {
 };
 
 const clearSessions = async () => {
-  if (confirm('Are you sure you want to clear all stored search sessions?')) {
+  if (await confirmAction({ title: 'Clear all stored search sessions?', confirmText: 'Clear' })) {
     await db.searchSessions.clear();
     selectedSessionIds.value = new Set();
     alert('Search sessions cleared.');
@@ -227,7 +230,7 @@ const clearSessions = async () => {
 const clearSelectedSessions = async () => {
   const ids = Array.from(selectedSessionIds.value);
   if (ids.length === 0) return;
-  if (confirm(`Are you sure you want to clear ${ids.length} selected search sessions?`)) {
+  if (await confirmAction({ title: `Clear ${ids.length} selected search sessions?`, confirmText: 'Clear' })) {
     await db.searchSessions.bulkDelete(ids);
     selectedSessionIds.value = new Set();
     alert('Selected search sessions cleared.');

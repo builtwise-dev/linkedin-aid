@@ -3,6 +3,7 @@ import { useAuth } from '@/composables/useAuth';
 import { VLoadingIndicator } from 'vuetify/labs/VLoadingIndicator';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 
@@ -43,6 +44,7 @@ initTheme();
         <router-view />
       </v-main>
     </template>
+    <ConfirmDialog />
   </v-app>
 </template>
 

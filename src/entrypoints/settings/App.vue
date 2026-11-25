@@ -5,6 +5,7 @@ import { useAppTheme } from '@/composables/useTheme';
 import SettingsView from '@/entrypoints/settings/views/SettingsView.vue';
 import SignInView from '@/components/common/views/SignInView.vue';
 import LayoutAppBar from '@/components/common/layout/LayoutAppBar.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const { user, loading: loadingAuth } = useAuth();
 
@@ -28,6 +29,7 @@ initTheme();
         <SignInView v-else />
       </v-main>
     </template>
+    <ConfirmDialog />
   </v-app>
 </template>
 

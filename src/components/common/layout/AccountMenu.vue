@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
-import { Anchor } from 'vuetify/framework';
+import type { Anchor } from 'vuetify/framework';
 
 interface Props {
   location?: Anchor;

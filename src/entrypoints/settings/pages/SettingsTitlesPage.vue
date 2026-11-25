@@ -4,6 +4,7 @@ import { useDataStore } from '@/store/data-store';
 import { storageService } from '@/services/storage-service';
 import { titleTargets, titleStates, generateLeadTitle } from '@/helpers/title-helper';
 import AppPreviewBox from '@/components/ui/AppPreviewBox.vue';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 import type { TitleTarget, TitleState } from '@/helpers/title-helper';
 
 const { copyLeadSettings } = useDataStore();
@@ -59,11 +60,13 @@ const addTarget = async () => {
   if (inputs) inputs[inputs.length - 1]?.focus();
 };
 
-const removeTarget = (index: number) => {
+const { confirmAction } = useConfirmDialog();
+
+const removeTarget = async (index: number) => {
   if (localSettings.value.titleTargets.length <= 1) return;
 
   const target = localSettings.value.titleTargets[index];
-  if (target.label.trim() !== '' && !confirm(`Remove title target "${target.label}"?`)) {
+  if (target.label.trim() !== '' && !await confirmAction({ title: `Remove title target “${target.label}”?`, confirmText: 'Remove' })) {
     return;
   }
 
@@ -98,11 +101,11 @@ const addState = async () => {
   if (inputs) inputs[inputs.length - 1]?.focus();
 };
 
-const removeState = (index: number) => {
+const removeState = async (index: number) => {
   if (localSettings.value.titleStates.length <= 1) return;
 
   const state = localSettings.value.titleStates[index];
-  if (state.label.trim() !== '' && !confirm(`Remove title state "${state.label}"?`)) {
+  if (state.label.trim() !== '' && !await confirmAction({ title: `Remove title state “${state.label}”?`, confirmText: 'Remove' })) {
     return;
   }
 
@@ -137,8 +140,8 @@ const previewTitle = computed(() => {
   });
 });
 
-const resetToDefaults = () => {
-  if (confirm('Are you sure you want to reset all title options to defaults? This will remove your custom entries.')) {
+const resetToDefaults = async () => {
+  if (await confirmAction({ title: 'Reset title options to defaults?', message: 'This will remove your custom entries.', confirmText: 'Reset' })) {
     localSettings.value.titleTargets = JSON.parse(JSON.stringify(titleTargets));
     localSettings.value.titleStates = JSON.parse(JSON.stringify(titleStates));
     localSettings.value.selectedTarget = titleTargets[0].value;
