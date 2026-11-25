@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth';
+import { VLoadingIndicator } from 'vuetify/labs/VLoadingIndicator';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
 import { useDataStore } from '@/store/data-store';
@@ -15,8 +16,27 @@ initTheme();
 
 <template>
   <v-app class="crm-app">
-    <v-container v-if="loading || !isLoaded" class="crm-loading" fluid><v-progress-circular indeterminate color="primary" /></v-container>
+    <v-container v-if="loading || !isLoaded" class="crm-loading" fluid>
+      <v-progress
+        details-position="bottom"
+        hide-value
+        indeterminate
+      >
+        <v-loading-indicator
+          aria-hidden="true"
+          color="primary"
+          shape-size="58%"
+          size="70"
+          contained
+        />
+        <template #label>
+          <span class="text-body-large mt-3">Loading...</span>
+        </template>
+      </v-progress>
+    </v-container>
+
     <SignInView v-else-if="!user" />
+
     <template v-else>
       <CrmNavigationDrawer />
       <v-main>
