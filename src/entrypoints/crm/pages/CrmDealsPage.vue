@@ -8,6 +8,7 @@ import saveDealSource from '@/graphql/operations/save-crm-deal.graphql?raw';
 import moveDealSource from '@/graphql/operations/move-crm-deal.graphql?raw';
 import deleteDealSource from '@/graphql/operations/delete-crm-deal.graphql?raw';
 import createPipelineSource from '@/graphql/operations/create-crm-pipeline.graphql?raw';
+import deletePipelineSource from '@/graphql/operations/delete-crm-pipeline.graphql?raw';
 
 interface Stage { id: string; name: string; position: number; category: string }
 interface Person { id: string; firstName?: string | null; lastName?: string | null }
@@ -29,7 +30,7 @@ const query = useQuery<WorkspaceData, { pipelineId: string | null }>(
   },
 );
 const pipelines = computed(() => query.result.value?.salesPipelines ?? []);
-const deals = computed(() => query.result.value?.dealsList ?? []);
+const deals = computed(() => (query.result.value?.dealsList ?? []).filter((deal) => deal.pipelineId === selectedPipelineId.value));
 const companies = computed(() => query.result.value?.companies ?? []);
 const people = computed(() => query.result.value?.people ?? []);
 const activePipeline = computed(() => pipelines.value.find((pipeline) => pipeline.id === selectedPipelineId.value) ?? pipelines.value[0]);
@@ -41,8 +42,10 @@ const saveMutation = useMutation<{ saveDeal: { id: string } }, { input: Record<s
 const moveMutation = useMutation<{ moveDealToStage: { id: string } }, { dealId: string; stageId: string }>(gql(moveDealSource) as DocumentNode);
 const deleteMutation = useMutation<{ deleteDeal: boolean }, { dealId: string }>(gql(deleteDealSource) as DocumentNode);
 const pipelineMutation = useMutation<{ createSalesPipeline: Pipeline }, { name: string; stages: string[] }>(gql(createPipelineSource) as DocumentNode);
+const pipelineDeleteMutation = useMutation<{ deleteSalesPipeline: boolean }, { pipelineId: string }>(gql(deletePipelineSource) as DocumentNode);
 const dealDialog = ref(false);
 const pipelineDialog = ref(false);
+const pipelineError = ref('');
 const editingDeal = ref<Deal | null>(null);
 const title = ref('');
 const companyId = ref('');
@@ -105,6 +108,24 @@ async function createPipeline() {
   pipelineName.value = '';
 }
 
+async function deletePipeline() {
+  const pipeline = activePipeline.value;
+  if (!pipeline || pipeline.isDefault) return;
+  if (deals.value.length > 0) {
+    pipelineError.value = 'Move or delete all deals in this pipeline before deleting it.';
+    return;
+  }
+  if (!confirm(`Delete pipeline “${pipeline.name}”? It must not contain any deals.`)) return;
+  pipelineError.value = '';
+  try {
+    await pipelineDeleteMutation.mutate({ variables: { pipelineId: pipeline.id } });
+    selectedPipelineId.value = '';
+    await query.refetch();
+  } catch (error) {
+    pipelineError.value = error instanceof Error ? error.message : 'Could not delete pipeline.';
+  }
+}
+
 function personName(person: Person) {
   return [person.firstName, person.lastName].filter(Boolean).join(' ') || 'Unnamed person';
 }
@@ -134,9 +155,17 @@ async function dropDeal(event: DragEvent, stage: Stage) {
       <div class="d-flex align-center ga-3 mb-5 flex-wrap">
         <v-select v-model="selectedPipelineId" :items="pipelines" item-title="name" item-value="id" label="Pipeline" density="compact" variant="outlined" hide-details class="pipeline-select" />
         <v-btn prepend-icon="mdi-plus" variant="outlined" @click="pipelineDialog = true">New pipeline</v-btn>
+        <v-tooltip v-if="activePipeline && !activePipeline.isDefault" text="Move or delete all deals in this pipeline to enable deletion." :disabled="deals.length === 0">
+          <template #activator="{ props }">
+            <span v-bind="props" class="d-inline-flex">
+              <v-btn prepend-icon="mdi-delete-outline" variant="text" color="error" :disabled="deals.length > 0" :loading="pipelineDeleteMutation.loading.value" @click="deletePipeline">Delete pipeline</v-btn>
+            </span>
+          </template>
+        </v-tooltip>
         <v-spacer />
         <v-btn color="primary" prepend-icon="mdi-plus" :disabled="!activePipeline || !companies.length" @click="openDeal()">New deal</v-btn>
       </div>
+      <v-alert v-if="pipelineError" type="error" variant="tonal" class="mb-4">{{ pipelineError }}</v-alert>
       <v-alert v-if="!companies.length" type="info" variant="tonal" class="mb-4">Save a company from LinkedIn before creating a deal.</v-alert>
       <div v-if="activePipeline" class="deal-board">
         <section v-for="stage in activePipeline.stages" :key="stage.id" class="deal-column" @dragover.prevent @drop="dropDeal($event, stage)">

@@ -1,0 +1,3 @@
+mutation DeleteSalesPipeline($pipelineId: String!) {
+  deleteSalesPipeline(pipelineId: $pipelineId)
+}
