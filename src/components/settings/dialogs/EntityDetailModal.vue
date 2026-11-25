@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
+import { useSnackbar } from '@/composables/useSnackbar';
 import { useDataStore } from '@/store/data-store';
 import { getEffectiveLeadPositions } from '@/helpers/lead-helper';
 import { getSalesNavigatorLeadUrl, getSalesNavigatorCompanyUrl } from '@/helpers/url-helpers';
@@ -63,6 +64,8 @@ const customRelations = computed(() => {
     };
   });
 });
+
+const { notifyError } = useSnackbar();
 
 const show = computed({
   get: () => props.modelValue,
@@ -138,6 +141,7 @@ const copyJson = async () => {
     }, 2000);
   } catch (err) {
     console.error('Failed to copy JSON:', err);
+    notifyError('Could not copy JSON to clipboard.');
   }
 };
 

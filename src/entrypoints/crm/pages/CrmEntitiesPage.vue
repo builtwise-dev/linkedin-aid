@@ -5,6 +5,7 @@ import type { CrmPerson } from '@/composables/useCrmData';
 defineProps<{ kind: 'people' | 'companies' }>();
 import { useCrmSave } from '@/composables/useCrmSave';
 import { useConfirmDialog } from '@/composables/useConfirmDialog';
+import { useSnackbar } from '@/composables/useSnackbar';
 import { useCrmCompanies, useCrmPeople, formatCrmDate } from '@/composables/useCrmData';
 
 const { records: people, loading: peopleLoading, error: peopleError, refetch: refetchPeople } = useCrmPeople();
@@ -36,55 +37,74 @@ const refreshSelectedPerson = async () => {
   selectedPerson.value = people.value.find((person) => person.id === selectedPerson.value?.id) ?? null;
 };
 
+const { confirmAction } = useConfirmDialog();
+const { notifySuccess, notifyError, errorText } = useSnackbar();
+
+const run = async (action: () => Promise<unknown>, failure: string, success?: string) => {
+  try {
+    await action();
+    if (success) notifySuccess(success);
+  } catch (error) {
+    notifyError(errorText(error, failure));
+  }
+};
+
 const addCompanyRelationship = async () => {
   if (!selectedPerson.value || !selectedCompanyId.value) return;
-  await linkPersonToCompany({
-    variables: {
-      personId: selectedPerson.value.id,
-      companyId: selectedCompanyId.value,
-      roleTitle: roleTitle.value || undefined,
-      isCurrent: relationshipIsCurrent.value,
-    },
-  });
-  selectedCompanyId.value = null;
-  roleTitle.value = '';
-  await refreshSelectedPerson();
+  const personId = selectedPerson.value.id;
+  const companyId = selectedCompanyId.value;
+  await run(async () => {
+    await linkPersonToCompany({
+      variables: {
+        personId,
+        companyId,
+        roleTitle: roleTitle.value || undefined,
+        isCurrent: relationshipIsCurrent.value,
+      },
+    });
+    selectedCompanyId.value = null;
+    roleTitle.value = '';
+    await refreshSelectedPerson();
+  }, 'Could not link company.', 'Company linked.');
 };
 
 const removeCompanyRelationship = async (companyId: string) => {
   if (!selectedPerson.value) return;
-  await unlinkPersonFromCompany({ variables: { personId: selectedPerson.value.id, companyId } });
-  await refreshSelectedPerson();
+  const personId = selectedPerson.value.id;
+  await run(async () => {
+    await unlinkPersonFromCompany({ variables: { personId, companyId } });
+    await refreshSelectedPerson();
+  }, 'Could not unlink company.', 'Company unlinked.');
 };
-
-const { confirmAction } = useConfirmDialog();
 
 const removePerson = async (personId: string) => {
   if (!await confirmAction({ title: 'Remove this person from your CRM?', confirmText: 'Remove' })) return;
-  await deletePerson({ variables: { personId } });
-  await refetchPeople();
+  await run(async () => {
+    await deletePerson({ variables: { personId } });
+    await refetchPeople();
+  }, 'Could not remove person.', 'Person removed from CRM.');
 };
 
-const setPersonLifecycle = async (personId: string, lifecycleStage: string) => {
+const setPersonLifecycle = (personId: string, lifecycleStage: string) => run(async () => {
   await updatePersonStatus({ variables: { personId, lifecycleStage } });
   await refetchPeople();
-};
-const setPersonConnection = async (personId: string, connectionStatus: string) => {
+}, 'Could not update lifecycle stage.');
+const setPersonConnection = (personId: string, connectionStatus: string) => run(async () => {
   await updatePersonStatus({ variables: { personId, connectionStatus } });
   await refetchPeople();
-};
-const setPersonOutreach = async (personId: string, outreachStatus: string) => {
+}, 'Could not update connection status.');
+const setPersonOutreach = (personId: string, outreachStatus: string) => run(async () => {
   await updatePersonStatus({ variables: { personId, outreachStatus } });
   await refetchPeople();
-};
-const setCompanyLifecycle = async (companyId: string, lifecycleStage: string) => {
+}, 'Could not update outreach status.');
+const setCompanyLifecycle = (companyId: string, lifecycleStage: string) => run(async () => {
   await updateCompanyStatus({ variables: { companyId, lifecycleStage } });
   await refetchCompanies();
-};
-const setCompanyClassification = async (companyId: string, accountClassification: string) => {
+}, 'Could not update lifecycle stage.');
+const setCompanyClassification = (companyId: string, accountClassification: string) => run(async () => {
   await updateCompanyStatus({ variables: { companyId, accountClassification } });
   await refetchCompanies();
-};
+}, 'Could not update classification.');
 
 const personLifecycleOptions = [
   { title: 'Lead', value: 'lead' },
@@ -114,8 +134,10 @@ const companyClassificationOptions = [
 
 const removeCompany = async (companyId: string) => {
   if (!await confirmAction({ title: 'Remove this company from your CRM?', confirmText: 'Remove' })) return;
-  await deleteCompany({ variables: { companyId } });
-  await refetchCompanies();
+  await run(async () => {
+    await deleteCompany({ variables: { companyId } });
+    await refetchCompanies();
+  }, 'Could not remove company.', 'Company removed from CRM.');
 };
 </script>
 

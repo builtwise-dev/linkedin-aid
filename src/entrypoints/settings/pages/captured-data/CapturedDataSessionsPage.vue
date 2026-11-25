@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { browser } from 'wxt/browser';
 import { useDataStore } from '@/store/data-store';
 import { useConfirmDialog } from '@/composables/useConfirmDialog';
+import { useSnackbar } from '@/composables/useSnackbar';
 
 const { personasStorage, leadTitles, leadsMap } = useDataStore();
 
@@ -71,16 +72,19 @@ const removeLeadTitle = async (urn: string) => {
 };
 
 const { confirmAction } = useConfirmDialog();
+const { notifySuccess } = useSnackbar();
 
 const clearPersonas = async () => {
   if (await confirmAction({ title: 'Clear all stored personas?', confirmText: 'Clear' })) {
     await browser.storage.session.remove(['personas']);
+    notifySuccess('Personas cleared.');
   }
 };
 
 const clearLeadTitles = async () => {
   if (await confirmAction({ title: 'Clear all stored lead titles?', confirmText: 'Clear' })) {
     await browser.storage.session.remove(['lead_titles']);
+    notifySuccess('Lead titles cleared.');
   }
 };
 </script>

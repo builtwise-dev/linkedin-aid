@@ -5,6 +5,7 @@ import { storageService } from '@/services/storage-service';
 import { titleTargets, titleStates, generateLeadTitle } from '@/helpers/title-helper';
 import AppPreviewBox from '@/components/ui/AppPreviewBox.vue';
 import { useConfirmDialog } from '@/composables/useConfirmDialog';
+import { useSnackbar } from '@/composables/useSnackbar';
 import type { TitleTarget, TitleState } from '@/helpers/title-helper';
 
 const { copyLeadSettings } = useDataStore();
@@ -61,6 +62,7 @@ const addTarget = async () => {
 };
 
 const { confirmAction } = useConfirmDialog();
+const { notifyInfo } = useSnackbar();
 
 const removeTarget = async (index: number) => {
   if (localSettings.value.titleTargets.length <= 1) return;
@@ -146,6 +148,7 @@ const resetToDefaults = async () => {
     localSettings.value.titleStates = JSON.parse(JSON.stringify(titleStates));
     localSettings.value.selectedTarget = titleTargets[0].value;
     localSettings.value.selectedState = titleStates[0].value;
+    notifyInfo('Title options reset to defaults.');
   }
 };
 </script>

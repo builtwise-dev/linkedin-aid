@@ -4,6 +4,7 @@ import { VLoadingIndicator } from 'vuetify/labs/VLoadingIndicator';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import AppSnackbarQueue from '@/components/common/AppSnackbarQueue.vue';
 import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 
@@ -45,6 +46,7 @@ initTheme();
       </v-main>
     </template>
     <ConfirmDialog />
+    <AppSnackbarQueue />
   </v-app>
 </template>
 

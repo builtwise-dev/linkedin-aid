@@ -6,6 +6,7 @@ import SettingsView from '@/entrypoints/settings/views/SettingsView.vue';
 import SignInView from '@/components/common/views/SignInView.vue';
 import LayoutAppBar from '@/components/common/layout/LayoutAppBar.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import AppSnackbarQueue from '@/components/common/AppSnackbarQueue.vue';
 
 const { user, loading: loadingAuth } = useAuth();
 
@@ -30,6 +31,7 @@ initTheme();
       </v-main>
     </template>
     <ConfirmDialog />
+    <AppSnackbarQueue />
   </v-app>
 </template>
 

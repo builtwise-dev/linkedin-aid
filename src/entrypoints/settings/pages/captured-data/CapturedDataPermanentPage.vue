@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useDataStore } from '@/store/data-store';
 import { db } from '@/db/schema';
 import { useConfirmDialog } from '@/composables/useConfirmDialog';
+import { useSnackbar } from '@/composables/useSnackbar';
 import LeadPreviewList from '@/components/leads/LeadPreviewList.vue';
 import CompanyPreview from '@/components/companies/CompanyPreview.vue';
 import SearchSessionPreview from '@/components/search-sessions/SearchSessionPreview.vue';
@@ -176,6 +177,7 @@ const allSessionsSelected = computed({
 });
 
 const { confirmAction } = useConfirmDialog();
+const { notifySuccess } = useSnackbar();
 
 const clearLeads = async () => {
   if (await confirmAction({ title: 'Clear all stored leads?', confirmText: 'Clear' })) {
@@ -184,7 +186,7 @@ const clearLeads = async () => {
       await db.leadPositionRelations.clear();
     });
     selectedLeadUrns.value = new Set();
-    alert('Leads cleared.');
+    notifySuccess('Leads cleared.');
   }
 };
 
@@ -197,7 +199,7 @@ const clearSelectedLeads = async () => {
       await db.leadPositionRelations.where('leadUrn').anyOf(urns).delete();
     });
     selectedLeadUrns.value = new Set();
-    alert('Selected leads cleared.');
+    notifySuccess(`${urns.length} leads cleared.`);
   }
 };
 
@@ -205,7 +207,7 @@ const clearCompanies = async () => {
   if (await confirmAction({ title: 'Clear all stored companies?', confirmText: 'Clear' })) {
     await db.companies.clear();
     selectedCompanyUrns.value = new Set();
-    alert('Companies cleared.');
+    notifySuccess('Companies cleared.');
   }
 };
 
@@ -215,7 +217,7 @@ const clearSelectedCompanies = async () => {
   if (await confirmAction({ title: `Clear ${urns.length} selected companies?`, confirmText: 'Clear' })) {
     await db.companies.bulkDelete(urns);
     selectedCompanyUrns.value = new Set();
-    alert('Selected companies cleared.');
+    notifySuccess(`${urns.length} companies cleared.`);
   }
 };
 
@@ -223,7 +225,7 @@ const clearSessions = async () => {
   if (await confirmAction({ title: 'Clear all stored search sessions?', confirmText: 'Clear' })) {
     await db.searchSessions.clear();
     selectedSessionIds.value = new Set();
-    alert('Search sessions cleared.');
+    notifySuccess('Search sessions cleared.');
   }
 };
 
@@ -233,7 +235,7 @@ const clearSelectedSessions = async () => {
   if (await confirmAction({ title: `Clear ${ids.length} selected search sessions?`, confirmText: 'Clear' })) {
     await db.searchSessions.bulkDelete(ids);
     selectedSessionIds.value = new Set();
-    alert('Selected search sessions cleared.');
+    notifySuccess(`${ids.length} search sessions cleared.`);
   }
 };
 

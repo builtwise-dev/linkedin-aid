@@ -4,6 +4,7 @@ import { gql, type DocumentNode } from '@apollo/client';
 import { useMutation, useQuery } from '@vue/apollo-composable';
 import CrmPageHeading from '@/components/crm/CrmPageHeading.vue';
 import { useConfirmDialog } from '@/composables/useConfirmDialog';
+import { useSnackbar } from '@/composables/useSnackbar';
 import dealsSource from '@/graphql/operations/crm-deals.graphql?raw';
 import saveDealSource from '@/graphql/operations/save-crm-deal.graphql?raw';
 import moveDealSource from '@/graphql/operations/move-crm-deal.graphql?raw';
@@ -46,7 +47,6 @@ const pipelineMutation = useMutation<{ createSalesPipeline: Pipeline }, { name: 
 const pipelineDeleteMutation = useMutation<{ deleteSalesPipeline: boolean }, { pipelineId: string }>(gql(deletePipelineSource) as DocumentNode);
 const dealDialog = ref(false);
 const pipelineDialog = ref(false);
-const pipelineError = ref('');
 const editingDeal = ref<Deal | null>(null);
 const title = ref('');
 const companyId = ref('');
@@ -58,6 +58,7 @@ const expectedCloseAt = ref('');
 const personIds = ref<string[]>([]);
 const pipelineName = ref('');
 const pipelineStagesText = ref('New Opportunity\nQualified\nDiscovery\nProposal\nNegotiation\nWon\nLost');
+const { notifySuccess, notifyError, errorText } = useSnackbar();
 const busy = computed(() => saveMutation.loading.value || moveMutation.loading.value || deleteMutation.loading.value);
 
 function openDeal(deal?: Deal) {
@@ -75,57 +76,77 @@ function openDeal(deal?: Deal) {
 
 async function saveDeal() {
   if (!title.value.trim() || !companyId.value || !stageId.value || !activePipeline.value) return;
-  await saveMutation.mutate({ variables: { input: {
+  const isEdit = !!editingDeal.value;
+  try {
+    await saveMutation.mutate({ variables: { input: {
     ...(editingDeal.value ? { id: editingDeal.value.id } : {}),
     title: title.value.trim(), companyId: companyId.value, pipelineId: activePipeline.value.id,
     stageId: stageId.value, description: description.value || undefined,
     amount: amount.value || undefined, currency: currency.value.trim().toUpperCase(),
     expectedCloseAt: expectedCloseAt.value ? new Date(`${expectedCloseAt.value}T12:00:00.000Z`).toISOString() : undefined,
     personIds: personIds.value,
-  } } });
-  dealDialog.value = false;
-  await query.refetch();
+    } } });
+    dealDialog.value = false;
+    notifySuccess(isEdit ? 'Deal updated.' : 'Deal created.');
+    await query.refetch();
+  } catch (error) {
+    notifyError(errorText(error, 'Could not save deal.'));
+  }
 }
 
 async function moveDeal(deal: Deal, targetStageId: string) {
   if (deal.stageId === targetStageId) return;
-  await moveMutation.mutate({ variables: { dealId: deal.id, stageId: targetStageId } });
-  await query.refetch();
+  try {
+    await moveMutation.mutate({ variables: { dealId: deal.id, stageId: targetStageId } });
+    await query.refetch();
+  } catch (error) {
+    notifyError(errorText(error, 'Could not move deal.'));
+  }
 }
 
 const { confirmAction } = useConfirmDialog();
 
 async function removeDeal(deal: Deal) {
   if (!await confirmAction({ title: `Delete “${deal.title}”?`, message: 'This deal will be permanently deleted.', confirmText: 'Delete' })) return;
-  await deleteMutation.mutate({ variables: { dealId: deal.id } });
-  await query.refetch();
+  try {
+    await deleteMutation.mutate({ variables: { dealId: deal.id } });
+    notifySuccess('Deal deleted.');
+    await query.refetch();
+  } catch (error) {
+    notifyError(errorText(error, 'Could not delete deal.'));
+  }
 }
 
 async function createPipeline() {
   const stages = pipelineStagesText.value.split('\n').map((stage) => stage.trim()).filter(Boolean);
-  const result = await pipelineMutation.mutate({ variables: { name: pipelineName.value.trim(), stages } });
-  const created = result?.data?.createSalesPipeline;
-  await query.refetch();
-  if (created) selectedPipelineId.value = created.id;
-  pipelineDialog.value = false;
-  pipelineName.value = '';
+  try {
+    const result = await pipelineMutation.mutate({ variables: { name: pipelineName.value.trim(), stages } });
+    const created = result?.data?.createSalesPipeline;
+    await query.refetch();
+    if (created) selectedPipelineId.value = created.id;
+    pipelineDialog.value = false;
+    pipelineName.value = '';
+    notifySuccess('Pipeline created.');
+  } catch (error) {
+    notifyError(errorText(error, 'Could not create pipeline.'));
+  }
 }
 
 async function deletePipeline() {
   const pipeline = activePipeline.value;
   if (!pipeline || pipeline.isDefault) return;
   if (deals.value.length > 0) {
-    pipelineError.value = 'Move or delete all deals in this pipeline before deleting it.';
+    notifyError('Move or delete all deals in this pipeline before deleting it.');
     return;
   }
   if (!await confirmAction({ title: `Delete pipeline “${pipeline.name}”?`, message: 'This pipeline and its stages will be permanently deleted.', confirmText: 'Delete' })) return;
-  pipelineError.value = '';
   try {
     await pipelineDeleteMutation.mutate({ variables: { pipelineId: pipeline.id } });
     selectedPipelineId.value = '';
+    notifySuccess('Pipeline deleted.');
     await query.refetch();
   } catch (error) {
-    pipelineError.value = error instanceof Error ? error.message : 'Could not delete pipeline.';
+    notifyError(errorText(error, 'Could not delete pipeline.'));
   }
 }
 
@@ -168,7 +189,6 @@ async function dropDeal(event: DragEvent, stage: Stage) {
         <v-spacer />
         <v-btn color="primary" prepend-icon="mdi-plus" :disabled="!activePipeline || !companies.length" @click="openDeal()">New deal</v-btn>
       </div>
-      <v-alert v-if="pipelineError" type="error" variant="tonal" class="mb-4">{{ pipelineError }}</v-alert>
       <v-alert v-if="!companies.length" type="info" variant="tonal" class="mb-4">Save a company from LinkedIn before creating a deal.</v-alert>
       <div v-if="activePipeline" class="deal-board">
         <section v-for="stage in activePipeline.stages" :key="stage.id" class="deal-column" @dragover.prevent @drop="dropDeal($event, stage)">
