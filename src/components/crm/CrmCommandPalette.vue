@@ -52,7 +52,7 @@ watch(selectedIndex, async () => {
   await nextTick();
   resultList.value
     ?.querySelector<HTMLElement>(`[data-command-index="${selectedIndex.value}"]`)
-    ?.scrollIntoView({ block: 'nearest' });
+    ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 });
 
 function selectResult(to: string) {
@@ -132,4 +132,5 @@ defineExpose({ openPalette });
 <style scoped>
 .command-palette { overflow: hidden; }
 .palette-hint { display: flex; justify-content: flex-end; gap: 16px; }
+[data-command-index] { scroll-margin-block: 56px; }
 </style>
