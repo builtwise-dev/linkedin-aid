@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { VLoadingIndicator } from 'vuetify/labs/VLoadingIndicator';
 import SignInView from '@/components/common/views/SignInView.vue';
 import CrmNavigationDrawer from '@/components/crm/CrmNavigationDrawer.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import AppSnackbarQueue from '@/components/common/AppSnackbarQueue.vue';
+import CrmCommandPalette from '@/components/crm/CrmCommandPalette.vue';
 import { useDataStore } from '@/store/data-store';
 import { useAppTheme } from '@/composables/useTheme';
 
+const commandPalette = ref<{ openPalette: () => void } | null>(null);
 const { user, loading } = useAuth();
 const { isLoaded, loadData } = useDataStore();
 const { initTheme } = useAppTheme();
@@ -40,7 +43,8 @@ initTheme();
     <SignInView v-else-if="!user" />
 
     <template v-else>
-      <CrmNavigationDrawer />
+      <CrmNavigationDrawer @open-command-palette="commandPalette?.openPalette()" />
+      <CrmCommandPalette ref="commandPalette" />
       <v-main>
         <router-view />
       </v-main>

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import AccountMenu from '@/components/common/layout/AccountMenu.vue';
 
+const emit = defineEmits<{ openCommandPalette: [] }>();
+
 const navigation = [
   {
     groupName: 'Workspace',
     items: [
-      { title: 'Home', icon: 'mdi-home-outline', to: '/' },
+      { title: 'Home', icon: 'mdi-home-outline', to: '/', hotkey: 'g-h' },
       { title: 'Calendar', icon: 'mdi-calendar-month-outline', to: '/calendar' },
-      { title: 'Tasks', icon: 'mdi-check-circle-outline', to: '/tasks' },
+      { title: 'Tasks', icon: 'mdi-check-circle-outline', to: '/tasks', hotkey: 'g-t' },
       { title: 'Actions', icon: 'mdi-lightning-bolt-outline', to: '/actions' },
     ],
   },
@@ -17,15 +19,15 @@ const navigation = [
       { title: 'Messaging', icon: 'mdi-message-outline', to: '/messaging' },
       { title: 'Sequences', icon: 'mdi-format-list-numbered', to: '/sequences' },
       { title: 'Workflows', icon: 'mdi-graph-outline', to: '/workflows' },
-      { title: 'Activity', icon: 'mdi-timeline-text-outline', to: '/activity' },
+      { title: 'Activity', icon: 'mdi-timeline-text-outline', to: '/activity', hotkey: 'g-a' },
     ],
   },
   {
     groupName: 'Data',
     items: [
-      { title: 'People', icon: 'mdi-account-multiple-outline', to: '/people' },
-      { title: 'Companies', icon: 'mdi-domain', to: '/companies' },
-      { title: 'Deals', icon: 'mdi-handshake-outline', to: '/deals' },
+      { title: 'People', icon: 'mdi-account-multiple-outline', to: '/people', hotkey: 'g-p' },
+      { title: 'Companies', icon: 'mdi-domain', to: '/companies', hotkey: 'g-c' },
+      { title: 'Deals', icon: 'mdi-handshake-outline', to: '/deals', hotkey: 'g-d' },
       { title: 'Segments', icon: 'mdi-tag-multiple-outline', to: '/segments' },
     ],
   },
@@ -52,11 +54,24 @@ const navigation = [
 
     <v-divider />
 
+    <div class="px-3 pt-3 pb-2">
+      <v-btn
+        block
+        prepend-icon="mdi-magnify"
+        class="justify-space-between"
+        @click="emit('openCommandPalette')"
+      >
+        Search CRM
+        <template #append>
+          <v-hotkey keys="cmd+k" display-mode="icon" platform="auto" />
+        </template>
+      </v-btn>
+    </div>
+
     <v-list
       v-for="group in navigation"
       :key="group.groupName"
       nav
-      class="px-3"
     >
       <v-list-subheader>{{ group.groupName }}</v-list-subheader>
       <v-list-item
@@ -68,7 +83,11 @@ const navigation = [
         :lines="false"
         density="comfortable"
         color="primary"
-      />
+      >
+        <template v-if="item.hotkey" #append>
+          <v-hotkey :keys="item.hotkey" display-mode="icon" platform="auto" />
+        </template>
+      </v-list-item>
     </v-list>
 
     <template #append>
