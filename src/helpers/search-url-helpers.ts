@@ -33,14 +33,14 @@ export function leadSearchTabSignaturesEqual(a: LeadSearchTabSignature, b: LeadS
     return false;
   }
 
-  const sessionKeyA = getLeadSearchTabSessionKeyFromSignature(a);
-  const sessionKeyB = getLeadSearchTabSessionKeyFromSignature(b);
+  const searchSessionKeyA = getSearchSessionKeyFromTabSignature(a);
+  const searchSessionKeyB = getSearchSessionKeyFromTabSignature(b);
 
-  return sessionKeyA === sessionKeyB;
+  return searchSessionKeyA === searchSessionKeyB;
 }
 
-function getLeadSearchTabSessionKeyFromSignature(sig: LeadSearchTabSignature): string {
-  return getLeadSearchSessionKey(sig.query ?? '', sig.sessionId);
+function getSearchSessionKeyFromTabSignature(sig: LeadSearchTabSignature): string {
+  return getSearchSessionKey(sig.query ?? '', sig.sessionId);
 }
 
 function extractFiltersFromQuery(query: string): string {
@@ -77,7 +77,7 @@ function normalizeFilters(filters: string): string {
   return normalized;
 }
 
-export function getLeadSearchSessionKey(query: string, sessionId?: string | null): string {
+export function getSearchSessionKey(query: string, sessionId?: string | null): string {
   const filters = extractFiltersFromQuery(query);
   const normalizedFilters = normalizeFilters(filters);
 
@@ -87,13 +87,13 @@ export function getLeadSearchSessionKey(query: string, sessionId?: string | null
   return `filters:${normalizedFilters}`;
 }
 
-/** Stable session storage key from a Sales Navigator people-search tab URL. */
-export function getLeadSearchTabSessionKey(tabUrl: string): string | null {
+/** Stable search session key from a Sales Navigator people-search tab URL. */
+export function getSearchSessionKeyFromTabUrl(tabUrl: string): string | null {
   const sig = getLeadSearchTabSignature(tabUrl);
   if (!sig) {
     return null;
   }
-  return getLeadSearchSessionKey(sig.query ?? '', sig.sessionId);
+  return getSearchSessionKey(sig.query ?? '', sig.sessionId);
 }
 
 export function leadSearchTabUrlsMatch(a: string, b: string, ignoreSessionId: boolean = false): boolean {
@@ -110,20 +110,20 @@ export function leadSearchTabUrlsMatch(a: string, b: string, ignoreSessionId: bo
 }
 
 export function findSearchSessionForTabUrl(
-  sessions: OptionalDeepReadonly<SearchSession[]>,
+  searchSessions: OptionalDeepReadonly<SearchSession[]>,
   tabUrl: string,
 ): OptionalDeepReadonly<SearchSession> | null {
   const isCompanyPage = isSalesNavigatorCompanyUrl(tabUrl);
   const source = isCompanyPage ? SearchSessionSource.COMPANY : SearchSessionSource.SEARCH;
 
   // 1. Try exact match
-  let matching = sessions.filter(
+  let matching = searchSessions.filter(
     s => s.source === source && s.tabUrl && leadSearchTabUrlsMatch(s.tabUrl, tabUrl),
   );
 
   // 2. If no exact match, try ignoring sessionId completely
   if (matching.length === 0) {
-    matching = sessions.filter(
+    matching = searchSessions.filter(
       s => s.source === source && s.tabUrl && leadSearchTabUrlsMatch(s.tabUrl, tabUrl, true),
     );
   }

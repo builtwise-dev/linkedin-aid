@@ -17,7 +17,7 @@ interface Props {
 const props = defineProps<Props>();
 const { leadPositionRelationsMap, companiesMap } = useDataStore();
 
-const { sessionTitle, isTitleCopied, copySessionTitle } = useCopyLead(props.lead);
+const { leadTitle, isTitleCopied, copyLeadTitle } = useCopyLead(props.lead);
 
 const effectivePositions = computed(() => {
   if (props.lead.main?.positions) {
@@ -88,9 +88,9 @@ function copyLeadInfo() {
       </div>
       <div class="header-actions">
         <AppCopyButton
-          v-if="sessionTitle"
+          v-if="leadTitle"
           :label="isTitleCopied ? 'Copied!' : 'Title'"
-          @click="copySessionTitle"
+          @click="copyLeadTitle"
         />
         <AppCopyButton primary @click="copyLeadInfo" />
       </div>

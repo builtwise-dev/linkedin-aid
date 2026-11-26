@@ -4,30 +4,30 @@ import { useDataStore } from '@/store/data-store';
 import { SearchSessionSource } from '@/types/search/search';
 
 export function useSearchSessions(tabUrl?: string) {
-  const { sessionsMap, loadData } = useDataStore();
+  const { searchSessionsMap, loadData } = useDataStore();
 
-  const sessions = computed(() => {
-    return Object.values(sessionsMap.value).sort((a, b) => b.updatedAt - a.updatedAt);
+  const searchSessions = computed(() => {
+    return Object.values(searchSessionsMap.value).sort((a, b) => b.updatedAt - a.updatedAt);
   });
 
-  const searchPageSessions = computed(() => {
-    return sessions.value.filter(s => s.source === SearchSessionSource.SEARCH);
+  const searchPageSearchSessions = computed(() => {
+    return searchSessions.value.filter(s => s.source === SearchSessionSource.SEARCH);
   });
 
-  const currentSession = computed(() => {
+  const currentSearchSession = computed(() => {
     if (!tabUrl) return null;
-    return findSearchSessionForTabUrl(sessions.value, tabUrl);
+    return findSearchSessionForTabUrl(searchSessions.value, tabUrl);
   });
 
-  const getSessionsByCompany = (companyUrn: string, source?: SearchSessionSource) => {
-    return sessions.value.filter(s => s.companyUrn === companyUrn && (!source || s.source === source));
+  const getSearchSessionsByCompany = (companyUrn: string, source?: SearchSessionSource) => {
+    return searchSessions.value.filter(s => s.companyUrn === companyUrn && (!source || s.source === source));
   };
 
   return {
-    sessions,
-    searchPageSessions,
-    currentSession,
-    getSessionsByCompany,
-    loadSessions: loadData,
+    searchSessions,
+    searchPageSearchSessions,
+    currentSearchSession,
+    getSearchSessionsByCompany,
+    loadSearchSessions: loadData,
   };
 }

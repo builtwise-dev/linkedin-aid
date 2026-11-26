@@ -182,8 +182,8 @@ watch(localBulkCopySettings, async (newValue) => {
     <v-card title="Actions after copying a lead" class="mb-4">
       <v-card-text>
         <v-checkbox
-          v-model="localCopySettings.actions.generateSessionTitle"
-          label="Generate and store session title (Recommended)"
+          v-model="localCopySettings.actions.generateLeadTitle"
+          label="Generate and store lead title (Recommended)"
           density="comfortable"
           hide-details
           color="#0073b1"

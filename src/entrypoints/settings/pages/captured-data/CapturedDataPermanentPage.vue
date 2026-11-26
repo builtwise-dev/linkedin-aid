@@ -10,13 +10,13 @@ import SearchSessionPreview from '@/components/search-sessions/SearchSessionPrev
 import EntityDetailModal from '@/components/settings/dialogs/EntityDetailModal.vue';
 import LeadPositionRelationModal from '@/components/settings/dialogs/LeadPositionRelationModal.vue';
 import CapturedDataRetentionSettings from '@/components/settings/CapturedDataRetentionSettings.vue';
-import { matchesLead, matchesCompany, matchesSession } from '@/helpers/entity-search-helper';
+import { matchesLead, matchesCompany, matchesSearchSession } from '@/helpers/entity-search-helper';
 import type { Lead } from '@/types/lead/lead';
 import type { Company } from '@/types/company/company';
 import type { SearchSession } from '@/types/search/search';
 import type { CompaniesMap } from '@/store/data-store';
 
-const { leadsMap, companiesMap, sessionsMap, leadPositionRelationsMap } = useDataStore();
+const { leadsMap, companiesMap, searchSessionsMap, leadPositionRelationsMap } = useDataStore();
 
 const PAGE_SIZE = 50;
 
@@ -32,18 +32,18 @@ const companies = computed(() => {
   return all.filter(company => matchesCompany(company as Company, searchQuery.value));
 });
 
-const sessions = computed(() => {
-  const all = Object.values(sessionsMap.value).sort((a, b) => b.updatedAt - a.updatedAt);
-  return all.filter(session => matchesSession(session as SearchSession, searchQuery.value));
+const searchSessions = computed(() => {
+  const all = Object.values(searchSessionsMap.value).sort((a, b) => b.updatedAt - a.updatedAt);
+  return all.filter(searchSession => matchesSearchSession(searchSession as SearchSession, searchQuery.value));
 });
 
 const leadsCount = computed(() => leads.value.length);
 const companiesCount = computed(() => companies.value.length);
-const sessionsCount = computed(() => sessions.value.length);
+const searchSessionsCount = computed(() => searchSessions.value.length);
 
 const leadsPage = ref(1);
 const companiesPage = ref(1);
-const sessionsPage = ref(1);
+const searchSessionsPage = ref(1);
 
 const paginatedLeads = computed(() => {
   const start = (leadsPage.value - 1) * PAGE_SIZE;
@@ -55,9 +55,9 @@ const paginatedCompanies = computed(() => {
   return companies.value.slice(start, start + PAGE_SIZE);
 });
 
-const paginatedSessions = computed(() => {
-  const start = (sessionsPage.value - 1) * PAGE_SIZE;
-  return sessions.value.slice(start, start + PAGE_SIZE);
+const paginatedSearchSessions = computed(() => {
+  const start = (searchSessionsPage.value - 1) * PAGE_SIZE;
+  return searchSessions.value.slice(start, start + PAGE_SIZE);
 });
 
 watch(leadsCount, (newCount) => {
@@ -74,30 +74,30 @@ watch(companiesCount, (newCount) => {
   }
 });
 
-watch(sessionsCount, (newCount) => {
+watch(searchSessionsCount, (newCount) => {
   const maxPage = Math.max(1, Math.ceil(newCount / PAGE_SIZE));
-  if (sessionsPage.value > maxPage) {
-    sessionsPage.value = maxPage;
+  if (searchSessionsPage.value > maxPage) {
+    searchSessionsPage.value = maxPage;
   }
 });
 
 watch(searchQuery, () => {
   leadsPage.value = 1;
   companiesPage.value = 1;
-  sessionsPage.value = 1;
+  searchSessionsPage.value = 1;
 });
 
 const activeTab = ref('leads');
 const tabs = computed(() => [
   { value: 'leads', title: `Leads (${ leadsCount.value })` },
   { value: 'companies', title: `Companies (${ companiesCount.value })` },
-  { value: 'sessions', title: `Search Sessions (${ sessionsCount.value })` },
+  { value: 'searchSessions', title: `Search Sessions (${ searchSessionsCount.value })` },
   { value: 'connection_requests', title: `Connection requests`, badge: 'dev' },
 ]);
 
 const selectedLeadUrns = ref(new Set<string>());
 const selectedCompanyUrns = ref(new Set<string>());
-const selectedSessionIds = ref(new Set<string>());
+const selectedSearchSessionIds = ref(new Set<string>());
 
 const isCompaniesDense = ref(true);
 
@@ -126,14 +126,14 @@ const toggleCompanySelection = (urn: string, selected: boolean) => {
   selectedCompanyUrns.value = next;
 };
 
-const toggleSessionSelection = (id: string, selected: boolean) => {
-  const next = new Set(selectedSessionIds.value);
+const toggleSearchSessionSelection = (id: string, selected: boolean) => {
+  const next = new Set(selectedSearchSessionIds.value);
   if (selected) {
     next.add(id);
   } else {
     next.delete(id);
   }
-  selectedSessionIds.value = next;
+  selectedSearchSessionIds.value = next;
 };
 
 const allLeadsSelected = computed({
@@ -162,16 +162,16 @@ const allCompaniesSelected = computed({
   }
 });
 
-const allSessionsSelected = computed({
-  get: () => sessionsCount.value > 0 && sessions.value.every(s => selectedSessionIds.value.has(s.id)),
+const allSearchSessionsSelected = computed({
+  get: () => searchSessionsCount.value > 0 && searchSessions.value.every(s => selectedSearchSessionIds.value.has(s.id)),
   set: (val) => {
-    const next = new Set(selectedSessionIds.value);
+    const next = new Set(selectedSearchSessionIds.value);
     if (val) {
-      sessions.value.forEach(s => next.add(s.id));
+      searchSessions.value.forEach(s => next.add(s.id));
     } else {
-      sessions.value.forEach(s => next.delete(s.id));
+      searchSessions.value.forEach(s => next.delete(s.id));
     }
-    selectedSessionIds.value = next;
+    selectedSearchSessionIds.value = next;
   }
 });
 
@@ -220,20 +220,20 @@ const clearSelectedCompanies = async () => {
   }
 };
 
-const clearSessions = async () => {
+const clearSearchSessions = async () => {
   if (await confirmAction({ title: 'Clear all stored search sessions?', confirmText: 'Clear' })) {
     await db.searchSessions.clear();
-    selectedSessionIds.value = new Set();
+    selectedSearchSessionIds.value = new Set();
     notifySuccess('Search sessions cleared.');
   }
 };
 
-const clearSelectedSessions = async () => {
-  const ids = Array.from(selectedSessionIds.value);
+const clearSelectedSearchSessions = async () => {
+  const ids = Array.from(selectedSearchSessionIds.value);
   if (ids.length === 0) return;
   if (await confirmAction({ title: `Clear ${ids.length} selected search sessions?`, confirmText: 'Clear' })) {
     await db.searchSessions.bulkDelete(ids);
-    selectedSessionIds.value = new Set();
+    selectedSearchSessionIds.value = new Set();
     notifySuccess(`${ids.length} search sessions cleared.`);
   }
 };
@@ -472,57 +472,57 @@ const openRelationModal = (lead: Lead) => {
           </div>
         </div>
 
-        <div v-else-if="activeTab === 'sessions'" class="nested-tab-content">
+        <div v-else-if="activeTab === 'searchSessions'" class="nested-tab-content">
           <div class="actions mb-3">
-            <v-checkbox v-model="allSessionsSelected" label="Select All" hide-details density="compact" color="#0073b1" />
+            <v-checkbox v-model="allSearchSessionsSelected" label="Select All" hide-details density="compact" color="#0073b1" />
             <div class="flex-spacer"></div>
             <v-btn
               color="error"
               variant="outlined"
               size="small"
               class="mr-2"
-              :disabled="selectedSessionIds.size === 0"
-              @click="clearSelectedSessions"
+              :disabled="selectedSearchSessionIds.size === 0"
+              @click="clearSelectedSearchSessions"
             >
-              Clear Selected ({{ selectedSessionIds.size }})
+              Clear Selected ({{ selectedSearchSessionIds.size }})
             </v-btn>
             <v-btn
               color="error"
               size="small"
-              :disabled="sessionsCount === 0"
-              @click="clearSessions"
+              :disabled="searchSessionsCount === 0"
+              @click="clearSearchSessions"
             >
               Clear All
             </v-btn>
           </div>
 
-          <div v-if="sessions.length > 0" class="entity-list">
-            <div class="session-list">
-              <template v-for="(session, index) in paginatedSessions" :key="session.id">
+          <div v-if="searchSessions.length > 0" class="entity-list">
+            <div class="search-session-list">
+              <template v-for="(searchSession, index) in paginatedSearchSessions" :key="searchSession.id">
                 <SearchSessionPreview
-                  :session="session"
+                  :search-session="searchSession"
                   selectable
-                  :selected="selectedSessionIds.has(session.id)"
+                  :selected="selectedSearchSessionIds.has(searchSession.id)"
                   show-expiration
-                  @update:selected="(val) => toggleSessionSelection(session.id, val)"
+                  @update:selected="(val) => toggleSearchSessionSelection(searchSession.id, val)"
                 >
-                  <template #actions="{ session: slotSession }">
+                  <template #actions="{ searchSession: slotSearchSession }">
                     <v-btn
                       density="comfortable"
                       icon="mdi-note-text-outline"
                       variant="text"
                       title="View full info"
-                      @click.stop="openDetail(slotSession as SearchSession)"
+                      @click.stop="openDetail(slotSearchSession as SearchSession)"
                     />
                   </template>
                 </SearchSessionPreview>
-                <v-divider v-if="index < paginatedSessions.length - 1" class="my-1" />
+                <v-divider v-if="index < paginatedSearchSessions.length - 1" class="my-1" />
               </template>
             </div>
 
             <v-pagination
-              v-model="sessionsPage"
-              :length="Math.ceil(sessionsCount / PAGE_SIZE)"
+              v-model="searchSessionsPage"
+              :length="Math.ceil(searchSessionsCount / PAGE_SIZE)"
               :total-visible="5"
               density="compact"
               class="mt-4"
@@ -604,7 +604,7 @@ const openRelationModal = (lead: Lead) => {
 }
 
 .company-list,
-.session-list {
+.search-session-list {
   display: flex;
   flex-direction: column;
 }

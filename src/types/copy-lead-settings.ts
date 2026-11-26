@@ -9,14 +9,14 @@ export type BulkCopyPrimaryAction = 'configure' | 'instant';
 export type CopyLeadProfileDestination = 'linkedin' | 'sales-navigator';
 
 export interface CopyLeadActions {
-  generateSessionTitle: boolean;
+  generateLeadTitle: boolean;
   saveTitlePreferences: boolean;
   openLinkedInProfile: boolean;
   openProfileDestination: CopyLeadProfileDestination;
 }
 
 export const DEFAULT_COPY_LEAD_ACTIONS: CopyLeadActions = {
-  generateSessionTitle: true,
+  generateLeadTitle: true,
   saveTitlePreferences: true,
   openLinkedInProfile: false,
   openProfileDestination: 'linkedin',

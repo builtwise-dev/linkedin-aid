@@ -15,20 +15,20 @@ interface Props {
 const props = defineProps<Props>();
 
 const { getLeadByUrn } = useLeads(props.tabUrl);
-const { currentSession } = useSearchSessions(props.tabUrl);
+const { currentSearchSession } = useSearchSessions(props.tabUrl);
 
 const displayedLeads = computed(() => {
-  if (currentSession.value) {
-    const urns = currentSession.value.leadUrnsByPage[currentPage.value] || [];
+  if (currentSearchSession.value) {
+    const urns = currentSearchSession.value.leadUrnsByPage[currentPage.value] || [];
     return urns.map(urn => getLeadByUrn(urn)).filter(Boolean) as Lead[];
   }
 
   return [];
 });
 
-const allSessionLeads = computed(() => {
-  if (currentSession.value) {
-    const allUrns = Object.values(currentSession.value.leadUrnsByPage).flat();
+const allSearchSessionLeads = computed(() => {
+  if (currentSearchSession.value) {
+    const allUrns = Object.values(currentSearchSession.value.leadUrnsByPage).flat();
     const uniqueUrns = [...new Set(allUrns)];
     return uniqueUrns.map(urn => getLeadByUrn(urn)).filter(Boolean) as Lead[];
   }
@@ -37,8 +37,8 @@ const allSessionLeads = computed(() => {
 
 const currentPage = ref(0);
 const totalPages = computed(() => {
-  if (!currentSession.value) return 0;
-  return Math.ceil(currentSession.value.total / currentSession.value.pageSize);
+  if (!currentSearchSession.value) return 0;
+  return Math.ceil(currentSearchSession.value.total / currentSearchSession.value.pageSize);
 });
 
 const getQueryPage = () => {
@@ -68,17 +68,17 @@ watch(totalPages, (newTotal) => {
 }, { immediate: true });
 
 const loadedPagesCount = computed(() => {
-  if (!currentSession.value) return 0;
-  return Object.keys(currentSession.value.leadUrnsByPage).length;
+  if (!currentSearchSession.value) return 0;
+  return Object.keys(currentSearchSession.value.leadUrnsByPage).length;
 });
 
 const loadedLeadsCount = computed(() => {
-  return allSessionLeads.value.length;
+  return allSearchSessionLeads.value.length;
 });
 
 const isPageLoaded = (page: number) => {
-  if (!currentSession.value) return false;
-  return currentSession.value?.leadUrnsByPage[page - 1]?.length > 0;
+  if (!currentSearchSession.value) return false;
+  return currentSearchSession.value?.leadUrnsByPage[page - 1]?.length > 0;
 };
 
 const changePage = (page: number) => {
@@ -89,7 +89,7 @@ const showBulkCopyModal = ref(false);
 const selectedUrns = ref<Set<string>>(new Set());
 
 const selectedLeads = computed(() => {
-  return allSessionLeads.value.filter(l => selectedUrns.value.has(l.entityUrn));
+  return allSearchSessionLeads.value.filter(l => selectedUrns.value.has(l.entityUrn));
 });
 
 const isPageSelected = computed(() => {
@@ -98,8 +98,8 @@ const isPageSelected = computed(() => {
 });
 
 const isAllSelected = computed(() => {
-  if (allSessionLeads.value.length === 0) return false;
-  return allSessionLeads.value.every(l => selectedUrns.value.has(l.entityUrn));
+  if (allSearchSessionLeads.value.length === 0) return false;
+  return allSearchSessionLeads.value.every(l => selectedUrns.value.has(l.entityUrn));
 });
 
 const toggleLeadSelection = (urn: string, selected: boolean) => {
@@ -121,7 +121,7 @@ const togglePageSelection = (selected: boolean) => {
 };
 
 const toggleAllSelection = (selected: boolean) => {
-  allSessionLeads.value.forEach(l => {
+  allSearchSessionLeads.value.forEach(l => {
     if (selected) {
       selectedUrns.value.add(l.entityUrn);
     } else {
@@ -180,7 +180,7 @@ const copySelected = () => {
       No leads collected for this page yet.
     </div>
 
-    <template v-if="totalPages > 0 && currentSession">
+    <template v-if="totalPages > 0 && currentSearchSession">
       <AppDivider />
       <div v-if="totalPages > 1" class="pagination">
         <button
@@ -197,7 +197,7 @@ const copySelected = () => {
       </div>
 
       <div class="pages-info">
-        Loaded {{ loadedPagesCount }}/{{ totalPages }} pages ({{ loadedLeadsCount }}/{{ currentSession.total }} leads)
+        Loaded {{ loadedPagesCount }}/{{ totalPages }} pages ({{ loadedLeadsCount }}/{{ currentSearchSession.total }} leads)
       </div>
     </template>
 
@@ -205,7 +205,7 @@ const copySelected = () => {
       v-if="showBulkCopyModal"
       v-model:show="showBulkCopyModal"
       :leads="selectedLeads"
-      :hero-card="currentSession?.heroCard"
+      :hero-card="currentSearchSession?.heroCard"
     />
   </div>
 </template>

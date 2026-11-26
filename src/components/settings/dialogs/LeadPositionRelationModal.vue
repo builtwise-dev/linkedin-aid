@@ -16,7 +16,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(['update:modelValue', 'saved']);
 
-const { companiesMap, sessionsMap, leadPositionRelationsMap } = useDataStore();
+const { companiesMap, searchSessionsMap, leadPositionRelationsMap } = useDataStore();
 
 const show = computed({
   get: () => props.modelValue,
@@ -54,21 +54,21 @@ const profileCompanies = computed(() => {
   return result;
 });
 
-const leadSessionCompanyUrns = computed(() => {
+const leadSearchSessionCompanyUrns = computed(() => {
   if (!props.lead) return new Set<string>();
   const leadUrn = props.lead.entityUrn;
   const urns = new Set<string>();
-  Object.values(sessionsMap.value).forEach(session => {
-    const pages = Object.values(session.leadUrnsByPage || {});
-    if (pages.some(page => page.includes(leadUrn)) && session.companyUrn) {
-      urns.add(session.companyUrn);
+  Object.values(searchSessionsMap.value).forEach(searchSession => {
+    const pages = Object.values(searchSession.leadUrnsByPage || {});
+    if (pages.some(page => page.includes(leadUrn)) && searchSession.companyUrn) {
+      urns.add(searchSession.companyUrn);
     }
   });
   return urns;
 });
 
 const getPositionItems = (pos: any) => {
-  const sessionUrns = leadSessionCompanyUrns.value;
+  const searchSessionUrns = leadSearchSessionCompanyUrns.value;
   const posCompanyName = pos.companyName?.toLowerCase();
 
   const allInDb = Object.values(companiesMap.value);
@@ -93,8 +93,8 @@ const getPositionItems = (pos: any) => {
     }
   };
 
-  // 1. Session related (Top priority)
-  sessionUrns.forEach(urn => {
+  // 1. Search session related (Top priority)
+  searchSessionUrns.forEach(urn => {
     const company = companiesMap.value[urn];
     if (company) addItem(urn, company.main?.name || 'Unknown', 'Search Session Relation', 100);
   });

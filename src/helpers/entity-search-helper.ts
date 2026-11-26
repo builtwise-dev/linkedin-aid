@@ -54,12 +54,12 @@ export function matchesCompany(company: Company, query: string): boolean {
   ) ?? false;
 }
 
-export function matchesSession(session: SearchSession, query: string): boolean {
+export function matchesSearchSession(searchSession: SearchSession, query: string): boolean {
   if (!query) return true;
   const q = query.toLowerCase();
 
   return (
-    session.query?.toLowerCase().includes(q) ||
-    session.searchTitle?.toLowerCase().includes(q)
+    searchSession.query?.toLowerCase().includes(q) ||
+    searchSession.searchTitle?.toLowerCase().includes(q)
   ) ?? false;
 }

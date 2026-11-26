@@ -31,7 +31,7 @@ const savedByMutationUrn = ref<string | null>(null);
 const savedByMutationId = ref<string | null>(null);
 const { getLeadsByCompany, getLeadsByPersona, getSavedLeadsByCompany } = useLeads(props.tabUrl);
 const { getPersonasByCompany } = usePersonas();
-const { getSessionsByCompany } = useSearchSessions();
+const { getSearchSessionsByCompany } = useSearchSessions();
 
 const activeTab = ref('persona');
 const tabs = [
@@ -105,16 +105,16 @@ const companyPersonas = computed(() => {
   return getPersonasByCompany(currentUrlCompany.value.entityUrn);
 });
 
-const companySessions = computed(() => {
+const companySearchSessions = computed(() => {
   const companyUrn = currentUrlCompany.value?.entityUrn;
   if (!companyUrn) return [];
-  return companyUrn ? getSessionsByCompany(companyUrn) : [];
+  return companyUrn ? getSearchSessionsByCompany(companyUrn) : [];
 });
 
-const currentSessionHeroCard = computed(() => {
-  const sessionByPersona = activeTab.value === 'persona' && companySessions.value.find(s => s.personaId);
-  const session = sessionByPersona || companySessions.value.find(s => s.heroCard);
-  return session?.heroCard;
+const currentSearchSessionHeroCard = computed(() => {
+  const searchSessionByPersona = activeTab.value === 'persona' && companySearchSessions.value.find(s => s.personaId);
+  const searchSession = searchSessionByPersona || companySearchSessions.value.find(s => s.heroCard);
+  return searchSession?.heroCard;
 });
 
 const personaOptions = computed(() => {
@@ -129,9 +129,9 @@ const personaOptions = computed(() => {
   });
 
   if (options.length > 0 && !selectedPersonaId.value) {
-    const latestPersonaSession = companySessions.value.find(s => s.personaId); // Already sorted by updatedAt in useSearchSessions
-    if (latestPersonaSession && latestPersonaSession.personaId) {
-      selectedPersonaId.value = latestPersonaSession.personaId;
+    const latestPersonaSearchSession = companySearchSessions.value.find(s => s.personaId); // Already sorted by updatedAt in useSearchSessions
+    if (latestPersonaSearchSession && latestPersonaSearchSession.personaId) {
+      selectedPersonaId.value = latestPersonaSearchSession.personaId;
     } else {
       selectedPersonaId.value = options[0].value;
     }
@@ -266,7 +266,7 @@ watch([activeTab, selectedPersonaId, () => props.tabUrl], () => {
       v-if="showBulkCopyModal"
       v-model:show="showBulkCopyModal"
       :leads="selectedLeads"
-      :hero-card="currentSessionHeroCard"
+      :hero-card="currentSearchSessionHeroCard"
     />
   </div>
 </template>

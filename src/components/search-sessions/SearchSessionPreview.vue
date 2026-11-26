@@ -7,7 +7,7 @@ import type { SearchSession } from '@/types/search/search';
 import type { OptionalDeepReadonly } from '@/types/common';
 
 interface Props {
-  session: OptionalDeepReadonly<SearchSession>;
+  searchSession: OptionalDeepReadonly<SearchSession>;
   selectable?: boolean;
   showExpiration?: boolean;
 }
@@ -19,16 +19,16 @@ const props = withDefaults(defineProps<Props>(), {
 const selected = defineModel<boolean>('selected', { default: false });
 
 const formattedDate = computed(() => {
-  return new Date(props.session.updatedAt).toLocaleString();
+  return new Date(props.searchSession.updatedAt).toLocaleString();
 });
 
-const totalResults = computed(() => props.session.total || 0);
-const pagesCaptured = computed(() => Object.keys(props.session.leadUrnsByPage).length);
+const totalResults = computed(() => props.searchSession.total || 0);
+const pagesCaptured = computed(() => Object.keys(props.searchSession.leadUrnsByPage).length);
 
-const title = computed(() => props.session.searchTitle || props.session.id);
+const title = computed(() => props.searchSession.searchTitle || props.searchSession.id);
 
 const { capturedEntitiesTTL } = useDataStore();
-const expirationInfo = computed(() => getEntityExpirationInfo(props.session.updatedAt, capturedEntitiesTTL.value));
+const expirationInfo = computed(() => getEntityExpirationInfo(props.searchSession.updatedAt, capturedEntitiesTTL.value));
 </script>
 
 <template>
@@ -46,13 +46,13 @@ const expirationInfo = computed(() => getEntityExpirationInfo(props.session.upda
       <div class="stats">
         <span class="stat"><strong>Results:</strong> {{ totalResults }}</span>
         <span class="stat"><strong>Pages:</strong> {{ pagesCaptured }}</span>
-        <span v-if="session.source" class="stat source"><strong>Source:</strong> {{ session.source }}</span>
+        <span v-if="searchSession.source" class="stat source"><strong>Source:</strong> {{ searchSession.source }}</span>
       </div>
-      <div v-if="session.query" class="query" :title="session.query">
-        {{ session.query }}
+      <div v-if="searchSession.query" class="query" :title="searchSession.query">
+        {{ searchSession.query }}
       </div>
     </div>
-    <slot name="actions" :session="session" />
+    <slot name="actions" :searchSession="searchSession" />
   </div>
 </template>
 

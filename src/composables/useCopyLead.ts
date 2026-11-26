@@ -173,7 +173,7 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
   });
 
   const titleCopyTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
-  const sessionTitle = ref<string | null>(null);
+  const leadTitle = ref<string | null>(null);
 
   const targets = computed(() => copyLeadSettings.value?.titleTargets || titleTargets);
   const states = computed(() => copyLeadSettings.value?.titleStates || titleStates);
@@ -192,17 +192,17 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
     capturedCompanyUrns.value = Object.keys(companies);
   };
 
-  const loadSessionTitle = async () => {
+  const loadLeadTitle = async () => {
     if (!lead.entityUrn) return;
     const titles = leadTitles.value;
     if (titles[lead.entityUrn]) {
-      sessionTitle.value = titles[lead.entityUrn];
+      leadTitle.value = titles[lead.entityUrn];
     }
   };
 
   onMounted(async () => {
     await loadCapturedCompanyUrns();
-    await loadSessionTitle();
+    await loadLeadTitle();
 
     // Load default settings if any from store
     if (copyLeadSettings.value) {
@@ -553,8 +553,8 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
       isCopied.value = false;
     }, 2000);
 
-    if (copyActions.value.generateSessionTitle) {
-      await saveSessionTitle();
+    if (copyActions.value.generateLeadTitle) {
+      await saveLeadTitle();
     }
 
     if (copyActions.value.openLinkedInProfile) {
@@ -573,19 +573,19 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
     }
   };
 
-  const saveSessionTitle = async () => {
+  const saveLeadTitle = async () => {
     const title = generateTitle();
     if (lead.entityUrn) {
       const titles = { ...leadTitles.value };
       titles[lead.entityUrn] = title;
       await storageService.setSession({ [LEAD_TITLES_KEY]: titles });
-      sessionTitle.value = title;
+      leadTitle.value = title;
     }
     return title;
   };
 
   const copyTitleToClipboard = async () => {
-    const title = await saveSessionTitle();
+    const title = await saveLeadTitle();
     await navigator.clipboard.writeText(title);
 
     // Save defaults to local storage
@@ -603,9 +603,9 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
     }, 2000);
   };
 
-  const copySessionTitle = async () => {
-    if (sessionTitle.value) {
-      await navigator.clipboard.writeText(sessionTitle.value);
+  const copyLeadTitle = async () => {
+    if (leadTitle.value) {
+      await navigator.clipboard.writeText(leadTitle.value);
       isTitleCopied.value = true;
       if (titleCopyTimeout.value) clearTimeout(titleCopyTimeout.value);
       titleCopyTimeout.value = setTimeout(() => {
@@ -661,7 +661,7 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
     capturedCompanyUrns,
     isCopied,
     isTitleCopied,
-    sessionTitle,
+    leadTitle,
     targets,
     states,
     selectedTarget,
@@ -675,7 +675,7 @@ export function useCopyLead(lead: OptionalDeepReadonly<Lead>) {
     generateTitle,
     copyToClipboard,
     copyTitleToClipboard,
-    copySessionTitle,
+    copyLeadTitle,
     toggleInsight,
     toggleSkill,
     togglePosition,

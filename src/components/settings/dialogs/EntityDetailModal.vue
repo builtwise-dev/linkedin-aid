@@ -108,8 +108,8 @@ const entityName = computed(() => {
     const company = props.entity;
     return company.main?.name || 'Company';
   } else {
-    const session = props.entity as SearchSession;
-    return session.searchTitle || session.query || 'Search Session';
+    const searchSession = props.entity as SearchSession;
+    return searchSession.searchTitle || searchSession.query || 'Search Session';
   }
 });
 

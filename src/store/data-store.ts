@@ -30,7 +30,7 @@ export type CompaniesMap = Record<string, Company>;
 const usePiniaDataStore = defineStore('data', () => {
   const leadsMap = ref<LeadsMap>({});
   const companiesMap = ref<CompaniesMap>({});
-  const sessionsMap = ref<Record<string, SearchSession>>({});
+  const searchSessionsMap = ref<Record<string, SearchSession>>({});
   const leadPositionRelations = ref<LeadPositionRelation[]>([]);
   const personasStorage = ref<PersonasStorage>({ general: [], byCompany: {} });
   const leadTitles = ref<Record<string, string>>({});
@@ -53,10 +53,10 @@ const usePiniaDataStore = defineStore('data', () => {
     companiesMap.value = map;
   });
 
-  liveQuery(() => db.searchSessions.toArray()).subscribe((sessions) => {
+  liveQuery(() => db.searchSessions.toArray()).subscribe((searchSessions) => {
     const map: Record<string, SearchSession> = {};
-    sessions.forEach(s => map[s.id] = s);
-    sessionsMap.value = map;
+    searchSessions.forEach(searchSession => map[searchSession.id] = searchSession);
+    searchSessionsMap.value = map;
   });
 
   liveQuery(() => db.leadPositionRelations.toArray()).subscribe((relations) => {
@@ -70,7 +70,7 @@ const usePiniaDataStore = defineStore('data', () => {
 
     const oldLeadUrns = await db.leads.where('updatedAt').below(threshold).primaryKeys();
     const oldCompaniesCount = await db.companies.where('updatedAt').below(threshold).delete();
-    const oldSessionsCount = await db.searchSessions.where('updatedAt').below(threshold).delete();
+    const oldSearchSessionsCount = await db.searchSessions.where('updatedAt').below(threshold).delete();
 
     if (oldLeadUrns.length > 0) {
       await db.transaction('rw', db.leads, db.leadPositionRelations, async () => {
@@ -79,8 +79,8 @@ const usePiniaDataStore = defineStore('data', () => {
       });
     }
 
-    if (oldLeadUrns.length > 0 || oldCompaniesCount > 0 || oldSessionsCount > 0) {
-      console.log(`Cleaned up ${oldLeadUrns.length} leads (and their relations), ${oldCompaniesCount} companies, and ${oldSessionsCount} sessions older than ${capturedEntitiesTTL.value} days.`);
+    if (oldLeadUrns.length > 0 || oldCompaniesCount > 0 || oldSearchSessionsCount > 0) {
+      console.log(`Cleaned up ${oldLeadUrns.length} leads (and their relations), ${oldCompaniesCount} companies, and ${oldSearchSessionsCount} search sessions older than ${capturedEntitiesTTL.value} days.`);
     }
   };
 
@@ -93,7 +93,15 @@ const usePiniaDataStore = defineStore('data', () => {
     if (session.personas) personasStorage.value = session.personas;
     if (session.lead_titles) leadTitles.value = session.lead_titles;
 
-    if (local.copyLeadSettings) copyLeadSettings.value = local.copyLeadSettings;
+    if (local.copyLeadSettings) {
+      const actions = local.copyLeadSettings.actions as (CopyLeadSettings['actions'] & { generateSessionTitle?: boolean }) | undefined;
+      if (actions && actions.generateLeadTitle === undefined && actions.generateSessionTitle !== undefined) {
+        actions.generateLeadTitle = actions.generateSessionTitle;
+        delete actions.generateSessionTitle;
+        await storageService.setLocal({ copyLeadSettings: local.copyLeadSettings });
+      }
+      copyLeadSettings.value = local.copyLeadSettings;
+    }
     if (local.bulkCopyLeadSettings) bulkCopyLeadSettings.value = local.bulkCopyLeadSettings;
     if (local.capturedEntitiesTTL !== undefined) capturedEntitiesTTL.value = local.capturedEntitiesTTL;
     if (local.theme) theme.value = local.theme;
@@ -147,7 +155,7 @@ const usePiniaDataStore = defineStore('data', () => {
   return {
     leadsMap,
     companiesMap,
-    sessionsMap,
+    searchSessionsMap,
     leadPositionRelationsMap,
     personasStorage,
     leadTitles,
@@ -169,7 +177,7 @@ export const useDataStore = () => {
   return {
     leadsMap: readonly(state.leadsMap),
     companiesMap: readonly(state.companiesMap),
-    sessionsMap: readonly(state.sessionsMap),
+    searchSessionsMap: readonly(state.searchSessionsMap),
     leadPositionRelationsMap: readonly(state.leadPositionRelationsMap),
     personasStorage: readonly(state.personasStorage),
     leadTitles: readonly(state.leadTitles),

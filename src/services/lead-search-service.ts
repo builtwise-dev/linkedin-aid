@@ -4,7 +4,7 @@ import { BASE_URL } from '@/constants/urls';
 import { db } from '@/db/schema';
 import { companyService } from '@/services/company-service';
 import { leadService } from '@/services/lead-service';
-import { getLeadSearchTabSessionKey, getLeadSearchSessionKey } from '@/helpers/search-url-helpers';
+import { getSearchSessionKeyFromTabUrl, getSearchSessionKey } from '@/helpers/search-url-helpers';
 import {
   getSalesNavigatorLeadUrl,
   getSalesNavigatorCompanyUrl,
@@ -53,15 +53,15 @@ export class LeadSearchService {
         source = tabUrl && isSalesNavigatorCompanyUrl(tabUrl) ? SearchSessionSource.COMPANY : SearchSessionSource.SEARCH;
       }
 
-      const sessionKeyPrefix = source;
-      const sessionKey = `${sessionKeyPrefix}:${(apiQuery ? getLeadSearchSessionKey(apiQuery, sessionId) : null)
-        || (tabUrl ? getLeadSearchTabSessionKey(tabUrl) : null)
+      const searchSessionKeyPrefix = source;
+      const searchSessionKey = `${searchSessionKeyPrefix}:${(apiQuery ? getSearchSessionKey(apiQuery, sessionId) : null)
+        || (tabUrl ? getSearchSessionKeyFromTabUrl(tabUrl) : null)
         || apiQuery}`;
 
       let companyUrn: string | undefined;
       let personaId: string | undefined;
 
-      if (sessionKey && apiQuery) {
+      if (searchSessionKey && apiQuery) {
         const companyMatch = apiQuery.match(/type:CURRENT_COMPANY,values:List\(\(id:(\d+)/);
         const organizationId = requestUrl.searchParams.get('organizationId');
         if (companyMatch || organizationId) {
@@ -73,8 +73,8 @@ export class LeadSearchService {
           personaId = personaMatch[1];
         }
 
-        const session = (await db.searchSessions.get(sessionKey)) || {
-          id: sessionKey,
+        const searchSession = (await db.searchSessions.get(searchSessionKey)) || {
+          id: searchSessionKey,
           query: apiQuery,
           tabUrl,
           total: data.paging.total,
@@ -90,20 +90,20 @@ export class LeadSearchService {
         const page = Math.floor(data.paging.start / data.paging.count);
         const leadUrns = data.elements.map(e => e.entityUrn).filter((urn): urn is string => !!urn);
 
-        session.leadUrnsByPage[page] = leadUrns;
+        searchSession.leadUrnsByPage[page] = leadUrns;
         if (tabUrl) {
-          session.tabUrl = tabUrl;
-          if (!session.source || session.source === SearchSessionSource.SEARCH || session.source === SearchSessionSource.COMPANY) {
-            session.source = source;
+          searchSession.tabUrl = tabUrl;
+          if (!searchSession.source || searchSession.source === SearchSessionSource.SEARCH || searchSession.source === SearchSessionSource.COMPANY) {
+            searchSession.source = source;
           }
         }
-        session.updatedAt = Date.now();
-        session.total = data.paging.total;
-        session.pageSize = data.paging.count;
-        session.searchTitle = data.metadata.searchTitle;
-        session.heroCard = data.metadata.heroCard;
-        session.companyUrn = companyUrn || session.companyUrn;
-        session.personaId = personaId || session.personaId;
+        searchSession.updatedAt = Date.now();
+        searchSession.total = data.paging.total;
+        searchSession.pageSize = data.paging.count;
+        searchSession.searchTitle = data.metadata.searchTitle;
+        searchSession.heroCard = data.metadata.heroCard;
+        searchSession.companyUrn = companyUrn || searchSession.companyUrn;
+        searchSession.personaId = personaId || searchSession.personaId;
 
         const companyUpdates: Record<string, { update: any, deepMerge: boolean }> = {};
         if (data.metadata.heroCard?.entityType === 'COMPANY') {
@@ -119,7 +119,7 @@ export class LeadSearchService {
           }
         }
 
-        await db.searchSessions.put(session);
+        await db.searchSessions.put(searchSession);
 
         if (Object.keys(companyUpdates).length > 0) {
           await companyService.updateCompaniesInStorage(companyUpdates);

@@ -6,7 +6,7 @@ import { useDataStore } from '@/store/data-store';
 import { SearchSessionSource } from '@/types/search/search';
 
 export function useLeads(tabUrl?: string) {
-  const { sessions, searchPageSessions, getSessionsByCompany } = useSearchSessions();
+  const { searchSessions, searchPageSearchSessions, getSearchSessionsByCompany } = useSearchSessions();
   const { leadsMap, loadData } = useDataStore();
 
   const leads = computed(() => {
@@ -19,7 +19,7 @@ export function useLeads(tabUrl?: string) {
 
   const companyUrns = computed(() => {
     const map: Record<string, Set<string>> = {};
-    searchPageSessions.value.forEach(s => {
+    searchPageSearchSessions.value.forEach(s => {
       if (s.companyUrn) {
         if (!map[s.companyUrn]) map[s.companyUrn] = new Set();
         const set = map[s.companyUrn];
@@ -35,11 +35,11 @@ export function useLeads(tabUrl?: string) {
     return result;
   });
 
-  const getLeadsByCompany = (companyUrn: string, includeAllSessions = false) => {
+  const getLeadsByCompany = (companyUrn: string, includeAllSearchSessions = false) => {
     const set = new Set<string>();
 
-    if (includeAllSessions) {
-      sessions.value
+    if (includeAllSearchSessions) {
+      searchSessions.value
         .filter(s => s.companyUrn === companyUrn)
         .forEach(s => {
           Object.values(s.leadUrnsByPage).forEach(pageUrns => {
@@ -63,15 +63,15 @@ export function useLeads(tabUrl?: string) {
 
   const getLeadsByPersona = (companyUrn: string, personaId?: string) => {
     const normalizedPersonaId = personaId ? normalizePersonaSearchId(personaId) : undefined;
-    const personaSessions = getSessionsByCompany(companyUrn, SearchSessionSource.COMPANY).filter(s => {
+    const personaSearchSessions = getSearchSessionsByCompany(companyUrn, SearchSessionSource.COMPANY).filter(s => {
       if (normalizedPersonaId) {
         return s.personaId && normalizePersonaSearchId(s.personaId) === normalizedPersonaId;
       }
       return !!s.personaId;
     });
     const leadUrns = new Set<string>();
-    personaSessions.forEach(session => {
-      Object.values(session.leadUrnsByPage).forEach(pageUrns => {
+    personaSearchSessions.forEach(searchSession => {
+      Object.values(searchSession.leadUrnsByPage).forEach(pageUrns => {
         pageUrns.forEach(urn => leadUrns.add(urn));
       });
     });
