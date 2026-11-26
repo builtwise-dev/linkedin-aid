@@ -49,30 +49,31 @@ const navigation = [
 
 <template>
   <v-navigation-drawer width="264" color="surface">
-    <v-list-item class="px-6 py-4">
-      <template #prepend>
-        <v-avatar color="primary" rounded="lg" size="40"><v-icon icon="mdi-linkedin" color="white" /></v-avatar>
-      </template>
-      <v-list-item-title class="text-subtitle-1 font-weight-bold">LinkedIn AID</v-list-item-title>
-      <v-list-item-subtitle>CRM workspace</v-list-item-subtitle>
-    </v-list-item>
-
-    <v-divider />
-
-    <div class="px-3 pt-3 pb-2">
-      <v-btn
-        block
-        prepend-icon="mdi-magnify"
-        :variant="$vuetify.theme.current.dark ? 'tonal' : undefined"
-        :class="{ 'justify-space-between': showHotkeys }"
-        @click="emit('openCommandPalette')"
-      >
-        Search CRM
-        <template #append>
-          <v-hotkey v-if="showHotkeys" keys="cmd+k" display-mode="icon" platform="auto" />
+    <template #prepend>
+      <v-list-item class="px-6 py-4">
+        <template #prepend>
+          <v-avatar color="primary" rounded="lg" size="40"><v-icon icon="mdi-linkedin" color="white" /></v-avatar>
         </template>
-      </v-btn>
-    </div>
+        <v-list-item-title class="text-subtitle-1 font-weight-bold">LinkedIn AID</v-list-item-title>
+        <v-list-item-subtitle>CRM workspace</v-list-item-subtitle>
+      </v-list-item>
+      <div class="px-3 pb-2">
+        <v-btn
+          block
+          prepend-icon="mdi-magnify"
+          :variant="$vuetify.theme.current.dark ? 'tonal' : undefined"
+          :class="{ 'justify-space-between': showHotkeys }"
+          @click="emit('openCommandPalette')"
+        >
+          Search CRM
+          <template #append>
+            <v-hotkey v-if="showHotkeys" keys="cmd+k" display-mode="icon" platform="auto" />
+          </template>
+        </v-btn>
+      </div>
+      <v-divider />
+    </template>
+
 
     <v-list
       v-for="group in navigation"
