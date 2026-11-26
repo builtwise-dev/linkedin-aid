@@ -1,4 +1,5 @@
 import { ref, readonly, computed } from 'vue';
+import { defineStore, storeToRefs } from 'pinia';
 import { browser } from 'wxt/browser';
 import { liveQuery } from 'dexie';
 import ms from 'ms';
@@ -26,115 +27,115 @@ export type CustomStorageChange<T = unknown> = { oldValue: T, newValue: T };
 export type LeadsMap = Record<string, Lead>;
 export type CompaniesMap = Record<string, Company>;
 
-const leadsMap = ref<LeadsMap>({});
-const companiesMap = ref<CompaniesMap>({});
-const sessionsMap = ref<Record<string, SearchSession>>({});
-const leadPositionRelations = ref<LeadPositionRelation[]>([]);
-const personasStorage = ref<PersonasStorage>({ general: [], byCompany: {} });
-const leadTitles = ref<Record<string, string>>({});
-const copyLeadSettings = ref<CopyLeadSettings | null>(null);
-const bulkCopyLeadSettings = ref<LocalData['bulkCopyLeadSettings'] | null>(null);
-const capturedEntitiesTTL = ref<number>(90);
-const theme = ref<LocalData['theme']>('system');
-const isLoaded = ref(false);
+const usePiniaDataStore = defineStore('data', () => {
+  const leadsMap = ref<LeadsMap>({});
+  const companiesMap = ref<CompaniesMap>({});
+  const sessionsMap = ref<Record<string, SearchSession>>({});
+  const leadPositionRelations = ref<LeadPositionRelation[]>([]);
+  const personasStorage = ref<PersonasStorage>({ general: [], byCompany: {} });
+  const leadTitles = ref<Record<string, string>>({});
+  const copyLeadSettings = ref<CopyLeadSettings | null>(null);
+  const bulkCopyLeadSettings = ref<LocalData['bulkCopyLeadSettings'] | null>(null);
+  const capturedEntitiesTTL = ref<number>(90);
+  const theme = ref<LocalData['theme']>('system');
+  const isLoaded = ref(false);
 
-// Sync Dexie to Vue refs
-liveQuery(() => db.leads.toArray()).subscribe((leads) => {
-  const map: Record<string, Lead> = {};
-  leads.forEach(l => map[l.entityUrn] = l);
-  leadsMap.value = map;
-});
+  // Sync Dexie to Vue refs
+  liveQuery(() => db.leads.toArray()).subscribe((leads) => {
+    const map: Record<string, Lead> = {};
+    leads.forEach(l => map[l.entityUrn] = l);
+    leadsMap.value = map;
+  });
 
-liveQuery(() => db.companies.toArray()).subscribe((companies) => {
-  const map: Record<string, Company> = {};
-  companies.forEach(c => map[c.entityUrn] = c);
-  companiesMap.value = map;
-});
+  liveQuery(() => db.companies.toArray()).subscribe((companies) => {
+    const map: Record<string, Company> = {};
+    companies.forEach(c => map[c.entityUrn] = c);
+    companiesMap.value = map;
+  });
 
-liveQuery(() => db.searchSessions.toArray()).subscribe((sessions) => {
-  const map: Record<string, SearchSession> = {};
-  sessions.forEach(s => map[s.id] = s);
-  sessionsMap.value = map;
-});
+  liveQuery(() => db.searchSessions.toArray()).subscribe((sessions) => {
+    const map: Record<string, SearchSession> = {};
+    sessions.forEach(s => map[s.id] = s);
+    sessionsMap.value = map;
+  });
 
-liveQuery(() => db.leadPositionRelations.toArray()).subscribe((relations) => {
-  leadPositionRelations.value = relations;
-});
+  liveQuery(() => db.leadPositionRelations.toArray()).subscribe((relations) => {
+    leadPositionRelations.value = relations;
+  });
 
-const cleanupOldData = async () => {
-  if (capturedEntitiesTTL.value === -1) return;
+  const cleanupOldData = async () => {
+    if (capturedEntitiesTTL.value === -1) return;
 
-  const threshold = Date.now() - ms(`${capturedEntitiesTTL.value}d`);
+    const threshold = Date.now() - ms(`${capturedEntitiesTTL.value}d`);
 
-  const oldLeadUrns = await db.leads.where('updatedAt').below(threshold).primaryKeys();
-  const oldCompaniesCount = await db.companies.where('updatedAt').below(threshold).delete();
-  const oldSessionsCount = await db.searchSessions.where('updatedAt').below(threshold).delete();
+    const oldLeadUrns = await db.leads.where('updatedAt').below(threshold).primaryKeys();
+    const oldCompaniesCount = await db.companies.where('updatedAt').below(threshold).delete();
+    const oldSessionsCount = await db.searchSessions.where('updatedAt').below(threshold).delete();
 
-  if (oldLeadUrns.length > 0) {
-    await db.transaction('rw', db.leads, db.leadPositionRelations, async () => {
-      await db.leads.bulkDelete(oldLeadUrns);
-      await db.leadPositionRelations.where('leadUrn').anyOf(oldLeadUrns).delete();
-    });
-  }
-
-  if (oldLeadUrns.length > 0 || oldCompaniesCount > 0 || oldSessionsCount > 0) {
-    console.log(`Cleaned up ${oldLeadUrns.length} leads (and their relations), ${oldCompaniesCount} companies, and ${oldSessionsCount} sessions older than ${capturedEntitiesTTL.value} days.`);
-  }
-};
-
-const loadData = async () => {
-  const [session, local] = await Promise.all([
-    storageService.getSession(['personas', 'lead_titles']),
-    storageService.getLocal(['copyLeadSettings', 'bulkCopyLeadSettings', 'capturedEntitiesTTL', 'theme']),
-  ]);
-
-  if (session.personas) personasStorage.value = session.personas;
-  if (session.lead_titles) leadTitles.value = session.lead_titles;
-
-  if (local.copyLeadSettings) copyLeadSettings.value = local.copyLeadSettings;
-  if (local.bulkCopyLeadSettings) bulkCopyLeadSettings.value = local.bulkCopyLeadSettings;
-  if (local.capturedEntitiesTTL !== undefined) capturedEntitiesTTL.value = local.capturedEntitiesTTL;
-  if (local.theme) theme.value = local.theme;
-
-  await cleanupOldData();
-
-  isLoaded.value = true;
-};
-
-// Listen for changes and update partially
-browser.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'session') {
-    if (changes.personas) {
-      const { newValue } = changes.personas as CustomStorageChange<SessionData['personas']>;
-      personasStorage.value = newValue || { general: [], byCompany: {} };
+    if (oldLeadUrns.length > 0) {
+      await db.transaction('rw', db.leads, db.leadPositionRelations, async () => {
+        await db.leads.bulkDelete(oldLeadUrns);
+        await db.leadPositionRelations.where('leadUrn').anyOf(oldLeadUrns).delete();
+      });
     }
-    if (changes.lead_titles) {
-      const { newValue } = changes.lead_titles as CustomStorageChange<SessionData['lead_titles']>;
-      leadTitles.value = newValue || {};
-    }
-  }
 
-  if (areaName === 'local') {
-    if (changes.copyLeadSettings) {
-      const { newValue } = changes.copyLeadSettings as CustomStorageChange<LocalData['copyLeadSettings']>;
-      copyLeadSettings.value = newValue || null;
+    if (oldLeadUrns.length > 0 || oldCompaniesCount > 0 || oldSessionsCount > 0) {
+      console.log(`Cleaned up ${oldLeadUrns.length} leads (and their relations), ${oldCompaniesCount} companies, and ${oldSessionsCount} sessions older than ${capturedEntitiesTTL.value} days.`);
     }
-    if (changes.bulkCopyLeadSettings) {
-      const { newValue } = changes.bulkCopyLeadSettings as CustomStorageChange<LocalData['bulkCopyLeadSettings']>;
-      bulkCopyLeadSettings.value = newValue || null;
-    }
-    if (changes.capturedEntitiesTTL) {
-      const { newValue } = changes.capturedEntitiesTTL as CustomStorageChange<LocalData['capturedEntitiesTTL']>;
-      capturedEntitiesTTL.value = newValue ?? 90;
-    }
-    if (changes.theme) {
-      const { newValue } = changes.theme as CustomStorageChange<LocalData['theme']>;
-      theme.value = newValue || 'system';
-    }
-  }
-});
+  };
 
-export const useDataStore = () => {
+  const loadData = async () => {
+    const [session, local] = await Promise.all([
+      storageService.getSession(['personas', 'lead_titles']),
+      storageService.getLocal(['copyLeadSettings', 'bulkCopyLeadSettings', 'capturedEntitiesTTL', 'theme']),
+    ]);
+
+    if (session.personas) personasStorage.value = session.personas;
+    if (session.lead_titles) leadTitles.value = session.lead_titles;
+
+    if (local.copyLeadSettings) copyLeadSettings.value = local.copyLeadSettings;
+    if (local.bulkCopyLeadSettings) bulkCopyLeadSettings.value = local.bulkCopyLeadSettings;
+    if (local.capturedEntitiesTTL !== undefined) capturedEntitiesTTL.value = local.capturedEntitiesTTL;
+    if (local.theme) theme.value = local.theme;
+
+    await cleanupOldData();
+
+    isLoaded.value = true;
+  };
+
+  // Listen for changes and update partially
+  browser.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'session') {
+      if (changes.personas) {
+        const { newValue } = changes.personas as CustomStorageChange<SessionData['personas']>;
+        personasStorage.value = newValue || { general: [], byCompany: {} };
+      }
+      if (changes.lead_titles) {
+        const { newValue } = changes.lead_titles as CustomStorageChange<SessionData['lead_titles']>;
+        leadTitles.value = newValue || {};
+      }
+    }
+
+    if (areaName === 'local') {
+      if (changes.copyLeadSettings) {
+        const { newValue } = changes.copyLeadSettings as CustomStorageChange<LocalData['copyLeadSettings']>;
+        copyLeadSettings.value = newValue || null;
+      }
+      if (changes.bulkCopyLeadSettings) {
+        const { newValue } = changes.bulkCopyLeadSettings as CustomStorageChange<LocalData['bulkCopyLeadSettings']>;
+        bulkCopyLeadSettings.value = newValue || null;
+      }
+      if (changes.capturedEntitiesTTL) {
+        const { newValue } = changes.capturedEntitiesTTL as CustomStorageChange<LocalData['capturedEntitiesTTL']>;
+        capturedEntitiesTTL.value = newValue ?? 90;
+      }
+      if (changes.theme) {
+        const { newValue } = changes.theme as CustomStorageChange<LocalData['theme']>;
+        theme.value = newValue || 'system';
+      }
+    }
+  });
+
   const leadPositionRelationsMap = computed(() => {
     const map: Record<string, Record<number, string>> = {};
     leadPositionRelations.value.forEach(r => {
@@ -144,17 +145,39 @@ export const useDataStore = () => {
   });
 
   return {
-    leadsMap: readonly(leadsMap),
-    companiesMap: readonly(companiesMap),
-    sessionsMap: readonly(sessionsMap),
+    leadsMap,
+    companiesMap,
+    sessionsMap,
     leadPositionRelationsMap,
-    personasStorage: readonly(personasStorage),
-    leadTitles: readonly(leadTitles),
-    copyLeadSettings: readonly(copyLeadSettings),
-    bulkCopyLeadSettings: readonly(bulkCopyLeadSettings),
-    capturedEntitiesTTL: readonly(capturedEntitiesTTL),
-    theme: readonly(theme),
-    isLoaded: readonly(isLoaded),
+    personasStorage,
+    leadTitles,
+    copyLeadSettings,
+    bulkCopyLeadSettings,
+    capturedEntitiesTTL,
+    theme,
+    isLoaded,
     loadData,
+  };
+});
+
+// Preserve the existing readonly-ref API for consumers while keeping Pinia as
+// the single owner of shared state.
+export const useDataStore = () => {
+  const store = usePiniaDataStore();
+  const state = storeToRefs(store);
+
+  return {
+    leadsMap: readonly(state.leadsMap),
+    companiesMap: readonly(state.companiesMap),
+    sessionsMap: readonly(state.sessionsMap),
+    leadPositionRelationsMap: readonly(state.leadPositionRelationsMap),
+    personasStorage: readonly(state.personasStorage),
+    leadTitles: readonly(state.leadTitles),
+    copyLeadSettings: readonly(state.copyLeadSettings),
+    bulkCopyLeadSettings: readonly(state.bulkCopyLeadSettings),
+    capturedEntitiesTTL: readonly(state.capturedEntitiesTTL),
+    theme: readonly(state.theme),
+    isLoaded: readonly(state.isLoaded),
+    loadData: store.loadData,
   };
 };
