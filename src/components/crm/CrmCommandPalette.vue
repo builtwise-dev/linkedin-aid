@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useHotkey } from 'vuetify';
 import { useCrmCompanies, useCrmPeople } from '@/composables/useCrmData';
@@ -8,6 +8,7 @@ const router = useRouter();
 const open = ref(false);
 const search = ref('');
 const selectedIndex = ref(0);
+const resultList = ref<HTMLElement | null>(null);
 const { records: people } = useCrmPeople();
 const { records: companies } = useCrmCompanies();
 
@@ -47,6 +48,12 @@ const results = computed(() => {
 });
 
 watch([open, search], () => { selectedIndex.value = 0; });
+watch(selectedIndex, async () => {
+  await nextTick();
+  resultList.value
+    ?.querySelector<HTMLElement>(`[data-command-index="${selectedIndex.value}"]`)
+    ?.scrollIntoView({ block: 'nearest' });
+});
 
 function selectResult(to: string) {
   open.value = false;
@@ -91,22 +98,25 @@ defineExpose({ openPalette });
         <template #append-inner><v-hotkey keys="escape" display-mode="symbol" platform="auto" /></template>
       </v-text-field>
       <v-divider />
-      <v-list v-if="results.length" class="py-2" max-height="440" nav>
-        <v-list-item
-          v-for="(item, index) in results"
-          :key="`${item.type}-${item.title}-${index}`"
-          :active="selectedIndex === index"
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :subtitle="item.subtitle"
-          rounded="lg"
-          class="mx-2"
-          @mousemove="selectedIndex = index"
-          @click="selectResult(item.to)"
-        >
-          <template #append><span class="text-caption text-medium-emphasis">{{ item.type }}</span></template>
-        </v-list-item>
-      </v-list>
+      <div v-if="results.length" ref="resultList">
+        <v-list class="py-2" max-height="440" nav>
+          <v-list-item
+            v-for="(item, index) in results"
+            :key="`${item.type}-${item.title}-${index}`"
+            :active="selectedIndex === index"
+            :prepend-icon="item.icon"
+            :title="item.title"
+            :subtitle="item.subtitle"
+            :data-command-index="index"
+            rounded="lg"
+            class="mx-2"
+            @mousemove="selectedIndex = index"
+            @click="selectResult(item.to)"
+          >
+            <template #append><span class="text-caption text-medium-emphasis">{{ item.type }}</span></template>
+          </v-list-item>
+        </v-list>
+      </div>
       <v-card-text v-else class="text-medium-emphasis text-center py-8">No matching pages or records.</v-card-text>
       <v-divider />
       <div class="palette-hint px-5 py-3 text-caption text-medium-emphasis">
