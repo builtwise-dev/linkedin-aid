@@ -157,7 +157,7 @@ const close = () => {
     max-width="900"
     scrollable
   >
-    <v-card v-if="entity">
+    <v-card v-if="entity" class="entity-detail-card">
       <v-toolbar
         color="primary"
         density="compact"
@@ -187,7 +187,7 @@ const close = () => {
 
       <v-divider></v-divider>
 
-      <v-card-text style="height: 600px;">
+      <v-card-text class="entity-detail-content">
         <v-window v-model="activeTab">
           <v-window-item value="info">
             <v-list density="compact">
@@ -294,7 +294,7 @@ const close = () => {
               :wrap-text="wrapJsonData"
               :is-copied="isCopied"
               :deep="5"
-              content-max-height="544px"
+              content-max-height="100%"
             >
               <template #header>
                 <v-btn
@@ -333,6 +333,43 @@ const close = () => {
 </template>
 
 <style scoped>
+.entity-detail-card {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+}
+
+.entity-detail-content {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+:deep(.v-window),
+:deep(.v-window__container) {
+  height: min(80vh, calc(100dvh - 240px));
+  min-height: 0;
+}
+
+:deep(.v-window-item) {
+  height: 100%;
+  overflow-y: auto;
+}
+
+:deep(.preview-box) {
+  height: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+:deep(.content-container) {
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
+}
+
 :deep(.v-list-item-subtitle) {
   opacity: 1;
   display: block;
