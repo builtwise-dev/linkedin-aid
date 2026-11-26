@@ -14,7 +14,6 @@ import {
 } from '@/helpers/url-helpers';
 import { SearchSessionSource, SearchApiQueryType } from '@/types/search/search';
 import type { SalesApiLeadSearchResponse } from '@/types/search/salesApiLeadSearch';
-import type { SearchSession } from '@/types/search/search';
 import type { PersonasStorage } from '@/types/search/search';
 import type { SalesApiPersonasResponse } from '@/types/search/salesApiPersonas';
 

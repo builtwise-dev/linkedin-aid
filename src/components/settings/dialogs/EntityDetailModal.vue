@@ -79,7 +79,7 @@ const entityType = computed(() => {
   const e = props.entity as any;
   if (e.main?.firstName || e.searchResult?.firstName || e.main?.lastName) return 'Lead';
   if (e.main?.name || e.entityUrn?.includes('company')) return 'Company';
-  if (e.id && (e.query || e.searchTitle)) return 'Session';
+  if (e.id && (e.query || e.searchTitle)) return 'Search Session';
   return 'Unknown';
 });
 
@@ -92,7 +92,7 @@ const isCompany = (entity: Entity): entity is Company => {
 };
 
 const isSearchSession = (entity: Entity): entity is SearchSession => {
-  return entityType.value === 'Session';
+  return entityType.value === 'Search Session';
 };
 
 const isLeadOrCompany = (entity: Entity) => {
@@ -109,7 +109,7 @@ const entityName = computed(() => {
     return company.main?.name || 'Company';
   } else {
     const session = props.entity as SearchSession;
-    return session.searchTitle || session.query || 'Session';
+    return session.searchTitle || session.query || 'Search Session';
   }
 });
 
@@ -271,7 +271,7 @@ const close = () => {
 
               <template v-if="isSearchSession(entity)">
                 <v-divider class="my-2"></v-divider>
-                <v-list-subheader>Session Information</v-list-subheader>
+                <v-list-subheader>Search Session Information</v-list-subheader>
                 <v-list-item>
                   <v-list-item-title class="font-weight-bold">Query</v-list-item-title>
                   <v-list-item-subtitle>{{ entity.query }}</v-list-item-subtitle>
@@ -335,5 +335,11 @@ const close = () => {
 <style scoped>
 :deep(.v-list-item-subtitle) {
   opacity: 1;
+  display: block;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  -webkit-line-clamp: unset;
 }
 </style>
